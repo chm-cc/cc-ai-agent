@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    active: local
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:}
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        max-document-batch-size: 10000
+    mcp:
+      client:
+        sse:
+          connections:
+            server1:
+              url: ${MCP_SERVER_URL:http://localhost:8127}
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/yu_ai_agent}
+    username: ${DB_USERNAME:}
+    password: ${DB_PASSWORD:}
+
+search-api:
+  api-key: ${SEARCH_API_KEY:}
