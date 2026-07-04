@@ -1,44 +1,15 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import ChatRoom from '../components/ChatRoom.vue'
 import { doChatWithCarAppSse } from '../api/chat'
+import { useChat } from '../composables/useChat'
 import { generateChatId } from '../utils/uuid'
 
-const chatId = ref('')
-const messages = ref([])
-const loading = ref(false)
-let abortController = null
+const chatId = ref(generateChatId())
 
-onMounted(() => {
-  chatId.value = generateChatId()
-})
-
-async function handleSend(text) {
-  messages.value.push({ role: 'user', content: text })
-  messages.value.push({ role: 'assistant', content: '', streaming: true })
-  const aiIndex = messages.value.length - 1
-
-  loading.value = true
-  abortController?.abort()
-  abortController = new AbortController()
-
-  try {
-    await doChatWithCarAppSse(text, chatId.value, {
-      signal: abortController.signal,
-      onChunk: (chunk) => {
-        messages.value[aiIndex].content += chunk
-      },
-    })
-  } catch (err) {
-    if (err.name !== 'AbortError') {
-      messages.value[aiIndex].content =
-        messages.value[aiIndex].content || `请求出错: ${err.message}`
-    }
-  } finally {
-    messages.value[aiIndex].streaming = false
-    loading.value = false
-  }
-}
+const { messages, loading, send, retry } = useChat((message, { signal, onChunk }) =>
+  doChatWithCarAppSse(message, chatId.value, { signal, onChunk }),
+)
 </script>
 
 <template>
@@ -48,6 +19,7 @@ async function handleSend(text) {
     subtitle="专业选车顾问，为你提供个性化购车建议"
     :chat-id="chatId"
     :loading="loading"
-    @send="handleSend"
+    @send="send"
+    @retry="retry"
   />
 </template>
