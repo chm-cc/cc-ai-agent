@@ -30,37 +30,22 @@ public class CarApp {
 
     private final ChatClient chatClient;
 
-    private static final String SYSTEM_PROMPT = "\"你是专业选车顾问，精通燃油车、新能源及各类车型的产品特点与市场定位。开场表明身份，告知用户可咨询选车、买车、对比车型等问题，将根据真实需求提供个性化建议。\\n\" +\n" +
-            "            \"\\n\" +\n" +
-            "            \"购车状态识别：先确认用户是首次买车、换车还是增购，据此切入不同提问路径。\\n\" +\n" +
-            "            \"\\n\" +\n" +
-            "            \"四维核心提问：\\n\" +\n" +
-            "            \"\\n\" +\n" +
-            "            \"1. 预算：落地总预算？全款/分期？月供上限？用车成本敏感度？\\n\" +\n" +
-            "            \"2. 用途：通勤/接送/出游/高速？载人情况？年里程？——决定油电经济性。\\n\" +\n" +
-            "            \"3. 偏好：轿车/SUV？燃油/纯电/插混？品牌倾向？必须有哪些配置？绝不能接受什么？\\n\" +\n" +
-            "            \"4. 场景：城市、充电条件、停车条件、牌照政策。\\n\" +\n" +
-            "            \"\\n\" +\n" +
-            "            \"深入挖掘：复述确认需求 → 追问纠结点 → 了解试驾体验 → 询问家人意见 → 明确购车时间节点。引导用户补充心仪车型或对比对象，定位当前最纠结的问题。\\n\" +\n" +
-            "            \"\\n\" +\n" +
-            "            \"输出规范：围绕真实需求推荐3-5款车型，每款含推荐配置、落地价区间、推荐理由、优缺点及场景匹配度。附横向对比与决策建议，告知试驾重点和避坑提示。不偏袒任何品牌，不超预算推荐，场景优先，承认信息盲区，不推荐舍弃核心安全配置以降预算。\\n\" +\n" +
-            "            \"\\n\" +\n" +
-            "            \"工具使用规范：你可以使用以下工具来辅助回答用户问题：\\n\" +\n" +
-            "            \"- 当用户提供了网页链接或需要查看某个网页的内容时，使用网页抓取工具\\n\" +\n" +
-            "            \"- 当需要执行命令（如运行Python脚本分析数据）时，使用终端命令工具\\n\" +\n" +
-            "            \"- 当需要将内容保存为文件时，使用文件写入工具\\n\" +\n" +
-            "            \"请根据用户的请求主动判断是否需要调用工具，不要仅凭自身知识回答。";
+    /** 共享对话记忆，流式和非流式路径统一使用 */
+    private final ChatMemory chatMemory;
+
+    private static final String SYSTEM_PROMPT = """
+            你是专业选车顾问，熟悉燃油车与新能源车型市场与产品特点，用户可咨询选车、购车与对比车型等问题。你必须始终遵循\u201c先回答后提问\u201d原则：先直接回答用户当前问题，再做简要解释补充，最后才进行轻量追问，禁止用连续提问替代回答。
+            信息补全基于四维：预算（落地价/月供）、用途（通勤/出游/里程）、偏好（轿车/SUV/油电/品牌）、场景（城市/充电/政策）。仅在关键信息缺失影响推荐时补充询问。
+            输出结构：结论优先 → 简要说明 → 3-5款车型推荐（含价格/优缺点/适配场景）→ 最多3个选择式追问。要求不预设立场，不过度追问，在信息不完整情况下仍需给出可执行建议。你拥有多种可调用的工具，能够高效完成复杂的请求。
+            """;
 
 
     /**
      * 初始化AI 客户端
      */
-    public CarApp(ChatModel dashscopeChatModel) {
-        // 初始化基于文件的对话记忆
-//        String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
-//        ChatMemory chatMemory = new FileBasedChatMemory(fileDir);
-        ChatMemory chatMemory = new InMemoryChatMemory();
-        chatClient = ChatClient.builder(dashscopeChatModel)
+    public CarApp(ChatModel ollamaChatModel) {
+        this.chatMemory = new InMemoryChatMemory();
+        chatClient = ChatClient.builder(ollamaChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
@@ -88,28 +73,49 @@ public class CarApp {
 
     public SseEmitter doChatStream(String message, String chatId) {
         SseEmitter sseEmitter = new SseEmitter(1000000L);
+
+        // 客户端断开标记，volatile 数组保证跨线程可见
+        final boolean[] disconnected = {false};
+
+        sseEmitter.onCompletion(() -> disconnected[0] = true);
+        sseEmitter.onTimeout(() -> {
+            disconnected[0] = true;
+            log.warn("SSE 连接超时");
+        });
+
         Flux<ChatResponse> flux = chatClient.prompt()
                 .user(message)
                 .advisors(new MyLoggerAdvisor())
-                .advisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
+                .advisors(new MessageChatMemoryAdvisor(chatMemory))
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .stream()
-                .chatResponse();
+                .chatResponse()
+                // 客户端断开后立即终止 Flux，不再消耗 LLM token
+                .takeWhile(resp -> !disconnected[0]);
+
         flux.doOnNext(chatResponse -> {
             try {
                 String content = chatResponse.getResult().getOutput().getText();
-                if (content != null) {
+                if (content != null && !disconnected[0]) {
                     sseEmitter.send(SseEmitter.event().data(content));
                 }
             } catch (IOException e) {
-                log.error("SSE发送失败", e);
-                sseEmitter.completeWithError(e);
+                // SSE 发送失败 = 客户端断开，设标记终止 Flux
+                disconnected[0] = true;
+                log.info("客户端已断开，停止流式输出");
+            }
+        }).doOnComplete(() -> {
+            if (!disconnected[0]) {
+                sseEmitter.complete();
             }
         }).doOnError(e -> {
-            log.error("流式对话异常", e);
-            sseEmitter.completeWithError(e);
-        }).doOnComplete(sseEmitter::complete).subscribe();
+            if (!disconnected[0]) {
+                log.error("流式对话异常", e);
+                sseEmitter.completeWithError(e);
+            }
+        }).subscribe();
+
         return sseEmitter;
     }
     record LoveReport(String title, List<String> suggestions) {

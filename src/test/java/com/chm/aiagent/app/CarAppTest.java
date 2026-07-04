@@ -53,17 +53,17 @@ class CarAppTest {
     @Test
     void doChatWithTools() {
 
-        testMessage("周末想带朋友去北京去看4s店看车，推荐几个适合的地方？");
+        testMessage("周末想带朋友去北京去看4s店看车，推荐几个适合的开车地方？");
 
         testMessage("最近想买车了，看看百度上（www.baidu.com）有推荐购买的车型吗？");
-
-        testMessage("直接下载一张适合做手机壁纸的星空图片为文件");
-
+//
+//        testMessage("直接下载一张适合做手机壁纸的星空图片为文件");
+//
         testMessage("执行 Python3 脚本来生成数据分析报告");
-
+//
         testMessage("生成一份‘百度111’PDF，包含百度的访问地址");
-
-        testMessage("保存我的买车档案为文件");
+//
+        testMessage("保存我以上聊天记录中的买车档案为文件");
     }
 
     private void testMessage(String message) {

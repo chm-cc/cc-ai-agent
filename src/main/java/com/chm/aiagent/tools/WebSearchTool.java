@@ -25,9 +25,9 @@ public class WebSearchTool {
         this.apiKey = apiKey;
     }
 
-    @Tool(description = "当需要搜索最新车型信息、价格、评测时，使用网页搜索工具")
+    @Tool(description = "Search for information from Baidu Search Engine")
     public String searchWeb(
-            @ToolParam(description = "需要查询的内容") String query) {
+            @ToolParam(description = "Search query keyword") String query) {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("q", query);
         paramMap.put("api_key", apiKey);

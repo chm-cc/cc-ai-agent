@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local
+    active: prod
   ai:
     dashscope:
       api-key: ${DASHSCOPE_API_KEY:}
