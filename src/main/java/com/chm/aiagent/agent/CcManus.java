@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class CcManus extends ToolCallAgent {
 
     public CcManus(ToolCallback[] allTools,
-                   @Qualifier("ollamaChatModel") ChatModel chatModel) {
+                   @Qualifier("dashscopeChatModel") ChatModel chatModel) {
         super(allTools);
         this.setName("ccManus");
         String SYSTEM_PROMPT = """  

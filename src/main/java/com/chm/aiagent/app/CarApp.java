@@ -68,9 +68,9 @@ public class CarApp {
     /**
      * 初始化AI 客户端
      */
-    public CarApp(ChatModel ollamaChatModel) {
+    public CarApp(ChatModel dashscopeChatModel) {
         this.chatMemory = new InMemoryChatMemory();
-        chatClient = ChatClient.builder(ollamaChatModel)
+        chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),

@@ -23,7 +23,6 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final ObjectMapper objectMapper;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -32,8 +31,8 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login", "/health", "/health/**").permitAll()
-                        .requestMatchers("/ai/**", "/simple/**", "/stream/**", "/auth/me").authenticated()
+//                        .requestMatchers("/auth/login", "/health", "/health/**").permitAll()
+//                        .requestMatchers("/ai/**", "/simple/**", "/stream/**", "/auth/me").authenticated()
                         .anyRequest().permitAll()
                 )
                 .exceptionHandling(ex -> ex
