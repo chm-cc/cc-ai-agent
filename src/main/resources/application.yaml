@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: prod
+    active: local
   ai:
     dashscope:
       api-key: ${DASHSCOPE_API_KEY:}
@@ -22,3 +22,8 @@ spring:
 
 search-api:
   api-key: ${SEARCH_API_KEY:}
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:ai-agent-jwt-secret-key-change-in-production-256bit}
+    expiration: ${JWT_EXPIRATION:86400000}

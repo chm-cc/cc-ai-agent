@@ -24,6 +24,9 @@ search-api:
 app:
   download:
     base-url: ${APP_BASE_URL}
+  jwt:
+    secret: ${JWT_SECRET:ai-agent-jwt-secret-key-change-in-production-256bit}
+    expiration: ${JWT_EXPIRATION:86400000}
 
 # 生产环境关闭 Swagger/Knife4j
 springdoc:

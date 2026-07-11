@@ -33,6 +33,10 @@ public enum ErrorCode {
     SSE_CONNECTION_ERROR(40001, "SSE 连接异常"),
     SSE_SEND_FAILED(40002, "SSE 消息发送失败"),
     SSE_CLIENT_DISCONNECTED(40003, "客户端已断开"),
+
+    // ========== 认证 50xxx ==========
+    UNAUTHORIZED(50001, "未登录或 Token 无效"),
+    LOGIN_FAILED(50002, "用户名或密码错误"),
     ;
 
     private final int code;

@@ -1,6 +1,20 @@
 import request from './request'
+import { getAuthHeaders, clearAuth } from '../utils/auth'
+import router from '../router'
 
 const BASE_URL = '/api'
+
+/**
+ * 处理 401 未授权，跳转登录页
+ */
+function handleUnauthorized() {
+  clearAuth()
+  const current = router.currentRoute.value
+  if (current.name !== 'Login') {
+    router.push({ name: 'Login', query: { redirect: current.fullPath } })
+  }
+  throw new Error('未登录，请先登录')
+}
 
 /**
  * 解析单个 SSE 事件块，提取 event / id / data 字段
@@ -81,8 +95,14 @@ async function parseSseStream(response, options, signal) {
  */
 export async function doChatWithCarAppSse(message, chatId, { onChunk, signal } = {}) {
   const params = new URLSearchParams({ message, chatId })
-  const response = await fetch(`${BASE_URL}/ai/car/sse?${params}`, { signal })
+  const response = await fetch(`${BASE_URL}/ai/car/sse?${params}`, {
+    signal,
+    headers: getAuthHeaders(),
+  })
 
+  if (response.status === 401) {
+    handleUnauthorized()
+  }
   if (!response.ok) {
     throw new Error(`请求失败: ${response.status}`)
   }
@@ -96,8 +116,14 @@ export async function doChatWithCarAppSse(message, chatId, { onChunk, signal } =
  */
 export async function doChatWithManus(message, { onChunk, signal } = {}) {
   const params = new URLSearchParams({ message })
-  const response = await fetch(`${BASE_URL}/ai/car/manus/chat?${params}`, { signal })
+  const response = await fetch(`${BASE_URL}/ai/car/manus/chat?${params}`, {
+    signal,
+    headers: getAuthHeaders(),
+  })
 
+  if (response.status === 401) {
+    handleUnauthorized()
+  }
   if (!response.ok) {
     throw new Error(`请求失败: ${response.status}`)
   }

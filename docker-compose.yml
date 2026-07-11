@@ -44,6 +44,8 @@ services:
       SEARCH_API_KEY: ${SEARCH_API_KEY}
       # MCP Server
       MCP_SERVER_URL: ${MCP_SERVER_URL:-http://localhost:8127}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-ai-agent-jwt-secret-key-change-in-production-256bit}
       # Ollama（如有本地部署）
       # OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
       # Java
