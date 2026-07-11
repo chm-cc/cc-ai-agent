@@ -9,8 +9,9 @@ const currentYear = computed(() => new Date().getFullYear())
   <footer class="site-footer">
     <div class="footer-inner">
       <p class="copyright">
-        © {{ currentYear }} {{ siteConfig.copyrightHolder }}. All rights reserved.
+        &copy; {{ currentYear }} {{ siteConfig.copyrightHolder }}
       </p>
+      <span class="sep" v-if="siteConfig.icpNumber">·</span>
       <p v-if="siteConfig.icpNumber" class="icp">
         <a
           href="https://beian.miit.gov.cn/"
@@ -20,41 +21,39 @@ const currentYear = computed(() => new Date().getFullYear())
           {{ siteConfig.icpNumber }}
         </a>
       </p>
-      <p class="powered">Powered by {{ siteConfig.name }}</p>
     </div>
   </footer>
 </template>
 
 <style scoped>
 .site-footer {
-  padding: 24px 16px;
+  padding: 20px 16px;
   text-align: center;
-  color: #999;
-  font-size: 12px;
-  line-height: 1.8;
-  border-top: 1px solid #e8e8e8;
-  background: #fafafa;
+  background: transparent;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   max-width: 960px;
   margin: 0 auto;
+  font-size: 12px;
+  color: #aaa;
 }
 
-.copyright {
-  color: #888;
+.sep {
+  color: #ddd;
 }
 
 .icp a {
-  color: #999;
+  color: #aaa;
   transition: color 0.2s;
 }
 
 .icp a:hover {
-  color: #4f6ef7;
-}
-
-.powered {
-  color: #bbb;
+  color: #666;
 }
 </style>

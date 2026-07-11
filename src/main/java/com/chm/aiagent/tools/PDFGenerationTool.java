@@ -17,12 +17,11 @@ import java.io.IOException;
  * PDF 生成工具
  */
 public class PDFGenerationTool {
-
     // 中文描述
-    @Tool(description = "生成一个包含给定内容的PDF文件", returnDirect = false)
+   @Tool(description = "Generate a PDF file with given content", returnDirect = false)
     public String generatePDF(
-            @ToolParam(description = "保存PDF文件的文件名") String fileName,
-            @ToolParam(description = "要包含在PDF中的内容") String content) {
+            @ToolParam(description = "Name of the file to save the generated PDF") String fileName,
+            @ToolParam(description = "Content to be included in the PDF") String content) {
         String fileDir = FileConstant.FILE_SAVE_DIR + "/pdf";
         String filePath = fileDir + "/" + fileName;
         try {

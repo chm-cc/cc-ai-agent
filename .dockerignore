@@ -1,0 +1,39 @@
+# Maven
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+
+# Git
+.git/
+.gitignore
+
+# 日志 & 临时文件
+*.log
+tmp/
+logs/
+
+# 前端（后端镜像不需要）
+cc-ai-agent-frontend/
+cc-image-search-mcp-server/
+
+# 敏感配置（通过环境变量注入）
+src/main/resources/application-local.yaml
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# 文档
+README.md
+HELP.md
+docs/

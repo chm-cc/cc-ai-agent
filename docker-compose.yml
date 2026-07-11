@@ -1,0 +1,90 @@
+version: "3.9"
+
+services:
+  # ============================================
+  # PostgreSQL + pgvector
+  # ============================================
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: ai-agent-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: yu_ai_agent
+      POSTGRES_USER: ${DB_USERNAME:-aiagent}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-aiagent} -d yu_ai_agent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Spring Boot 后端
+  # ============================================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-agent-backend
+    restart: unless-stopped
+    ports:
+      - "8123:8123"
+    environment:
+      # 数据库
+      DB_URL: jdbc:postgresql://postgres:5432/yu_ai_agent
+      DB_USERNAME: ${DB_USERNAME:-aiagent}
+      DB_PASSWORD: ${DB_PASSWORD:-changeme}
+      # LLM
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY}
+      # 搜索引擎
+      SEARCH_API_KEY: ${SEARCH_API_KEY}
+      # MCP Server
+      MCP_SERVER_URL: ${MCP_SERVER_URL:-http://localhost:8127}
+      # Ollama（如有本地部署）
+      # OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      # Java
+      JAVA_OPTS: -Xmx512m
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ============================================
+  # Vue 前端（Nginx）
+  # ============================================
+  frontend:
+    build:
+      context: ./cc-ai-agent-frontend
+      dockerfile: Dockerfile
+    container_name: ai-agent-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+  # ============================================
+  # Ollama（可选，如需本地 LLM 取消注释）
+  # ============================================
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: ai-agent-ollama
+  #   restart: unless-stopped
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: 1
+  #             capabilities: [gpu]
+
+volumes:
+  pgdata:
+  # ollama_data:

@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: ai-agent
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat:
+        model: ${OLLAMA_MODEL:qwen2.5:7b}
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+server:
+  port: ${SERVER_PORT:8123}
+  servlet:
+    context-path: /api
+
+search-api:
+  api-key: ${SEARCH_API_KEY}
+
+app:
+  download:
+    base-url: ${APP_BASE_URL}
+
+# 生产环境关闭 Swagger/Knife4j
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+knife4j:
+  enable: false
+
+# 生产环境日志级别
+logging:
+  level:
+    root: INFO
+    com.chm.aiagent: INFO
+  file:
+    name: logs/ai-agent.log

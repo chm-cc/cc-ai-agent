@@ -35,3 +35,4 @@ build/
 ### 敏感配置 & 临时文件 ###
 application-local.yaml
 tmp/
+src/main/resources/application-prod.yaml
