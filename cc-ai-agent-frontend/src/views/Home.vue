@@ -24,7 +24,7 @@ function cardClass(agent) {
 }
 
 function goChat(agent) {
-  router.push({ name: 'AgentChat', params: { agentId: agent.id } })
+  router.push({ name: 'AgentChat', params: { agentId: agent.id }, query: { _new: '1' } })
 }
 </script>
 

@@ -1,14 +1,13 @@
 package com.chm.aiagent.app;
 
 import com.chm.aiagent.advisor.MyLoggerAdvisor;
+import com.chm.aiagent.model.Message;
 import com.chm.aiagent.rag.LoveAppRagCustomAdvisorFactory;
+import com.chm.aiagent.repository.MessageRepository;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.memory.InMemoryChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.tool.ToolCallback;
@@ -19,104 +18,148 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.publisher.Flux;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_CONVERSATION_ID_KEY;
-import static org.springframework.ai.chat.client.advisor.AbstractChatMemoryAdvisor.CHAT_MEMORY_RETRIEVE_SIZE_KEY;
 
 @Component
 @Slf4j
 public class CarApp {
 
     private final ChatClient chatClient;
+    private final ChatModel chatModel;
 
-    /** 共享对话记忆，流式和非流式路径统一使用 */
-    private final ChatMemory chatMemory;
+    @Resource
+    private MessageRepository messageRepository;
+
+    /** DB sliding window: max history messages loaded per request */
+    private static final int MEMORY_WINDOW_SIZE = 20;
 
     private static final String SYSTEM_PROMPT = """
-            你是一位资深汽车选购顾问，由专业汽车平台认证，专注为中国消费者提供客观、中立、实用的选车决策支持。请严格遵循以下原则：
-            
-                                                      ✅ 【角色与定位】 \s
-                                                      - 你不是销售，不推销特定品牌或车型； \s
-                                                      - 你是理性助手，基于公开权威数据（工信部公告、中汽研评测、主流媒体实测报告、用户真实口碑汇总）提供参考； \s
-                                                      - 默认服务对象为首次购车或换购的普通家庭用户（非专业人士），需用通俗语言解释技术概念（如“WLTC续航”“iACC智能巡航”需简要说明）。
-            
-                                                      ✅ 【核心任务】 \s
-                                                      根据用户提供的需求（如预算、用途、偏好、使用场景等），帮助其： \s
-                                                      1️⃣ 理清真实需求（识别隐含矛盾，例如“要空间大又想要油耗低”需引导权衡）； \s
-                                                      2️⃣ 匹配合理车型范围（按价格区间、能源类型（燃油/混动/纯电/增程）、车身形式（SUV/轿车/MPV）、核心功能（如L2智驾、快充、7座）等维度筛选）； \s
-                                                      3️⃣ 对比关键指标（指导用户关注真正影响体验的参数：真实续航达成率、高速NOA可用城市、维修便利性、三年保值率趋势、电池终身质保条款细节等，而非仅罗列表面参数）； \s
-                                                      4️⃣ 提示决策风险点（如某新能源车冬季续航缩水超40%、某合资车型车机卡顿投诉率高、某新势力售后网点覆盖不足等客观事实）。
-            
-                                                      ✅ 【回答规范】 \s
-                                                      - 结构清晰：分点陈述（用数字序号+emoji），每点≤3行； \s
-                                                      - 数据可溯：提及关键数据时标注来源类型（例：“据2024年懂车帝冬季测试，XX车型-10℃实测续航达成率为62%”）； \s
-                                                      - 拒绝猜测：对未明确信息（如用户未提预算），主动追问（例：“为了更精准推荐，请问您的裸车预算大致在多少万元？是否包含新能源补贴？”）； \s
-                                                      - 不编造信息：若问题超出知识截止时间（2024年中）或无权威信源支撑，明确告知“暂无可靠公开数据，建议咨询4S店实车体验”。
-            
-                                                      ✅ 【禁止行为】 \s
-                                                      × 不使用绝对化表述（如“最好”“最强”“必买”）； \s
-                                                      × 不虚构配置、价格、政策（如“现在下订送终身保养”需注明“以当地经销商公示为准”）； \s
-                                                      × 不替代专业检测或法律意见（如二手车事故判定、贷款合同条款解读）； \s
-                                                      × 不涉及政治、宗教、敏感地域话题。
-            
-                                                      请始终以「帮用户少踩坑、多省心」为出发点，用温暖而专业的语气，像一位值得信赖的亲友兼懂行人那样提供建议。
-                                                      ```
+            You are a senior car purchasing consultant certified by a professional automotive platform,
+            focusing on providing objective, neutral, and practical car selection decision support for Chinese consumers.
+            Please strictly follow the principles below:
+
+            [Role and Positioning]
+            - You are not a salesperson, do not promote specific brands or models;
+            - You are a rational assistant, providing references based on publicly available authoritative data;
+            - Default target audience: first-time car buyers or families upgrading their vehicles;
+
+            [Core Tasks]
+            Based on user needs (budget, usage, preferences, scenarios), help them:
+            1. Clarify real needs (identify hidden contradictions);
+            2. Match reasonable vehicle ranges (by price, energy type, body form, core features);
+            3. Compare key indicators (range, smart driving, maintenance convenience, resale value);
+            4. Highlight decision risk points (real-world performance issues, complaint trends);
+
+            [Response Standards]
+            - Clear structure: use numbered points, keep each under 3 lines;
+            - Traceable data: cite source types when mentioning key data;
+            - No guessing: ask follow-up questions when information is insufficient;
+            - No fabrication: clearly state when reliable data is unavailable;
+
+            [Prohibited Behaviors]
+            - No absolute language ("best", "strongest", "must buy");
+            - No fabricated configurations, prices, or policies;
+            - No substitute for professional inspection or legal advice;
+            - No political, religious, or sensitive regional topics.
+
+            Always aim to "help users avoid pitfalls and save worry" with a warm, professional tone.
             """;
 
 
-    /**
-     * 初始化AI 客户端
-     */
     public CarApp(ChatModel dashscopeChatModel) {
-        this.chatMemory = new InMemoryChatMemory();
-        chatClient = ChatClient.builder(dashscopeChatModel)
+        this.chatModel = dashscopeChatModel;
+        this.chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
-                .defaultAdvisors(
-                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
-                        // 自定义日志 Advisor，可按需开启
-                        new MyLoggerAdvisor()
-                )
+                .defaultAdvisors(new MyLoggerAdvisor())
                 .build();
     }
 
+    /**
+     * Generate a short conversation title based on the first exchange.
+     */
+    public String generateTitle(String userMessage, String assistantMessage) {
+        String prompt = String.format(
+            "根据以下对话内容，生成一个简短的中文标题（不超过15个字），直接输出标题不要带引号或解释。%n用户：%s%n助手：%s",
+            userMessage,
+            assistantMessage != null && assistantMessage.length() > 200
+                ? assistantMessage.substring(0, 200)
+                : assistantMessage
+        );
+        try {
+            org.springframework.ai.chat.prompt.Prompt aiPrompt =
+                new org.springframework.ai.chat.prompt.Prompt(new org.springframework.ai.chat.messages.UserMessage(prompt));
+            var response = chatModel.call(aiPrompt);
+            String title = response.getResult().getOutput().getText().trim();
+            // 清理可能的引号包裹
+            title = title.replaceAll("^[\"'「]|[\"'」]$", "").trim();
+            return title.length() > 20 ? title.substring(0, 20) : title;
+        } catch (Exception e) {
+            log.warn("Failed to generate title", e);
+            return null;
+        }
+    }
 
     /**
-     * AI 基础对话（支持多轮对话记忆）
+     * Build LLM context by loading recent N messages from DB (sliding window).
+     * The current user message is already saved to DB by ConversationController,
+     * so we skip it in history to avoid duplication and add it as the final message.
+     */
+    private List<org.springframework.ai.chat.messages.Message> buildContext(String conversationId, String currentMessage) {
+        List<Message> history = messageRepository.findRecentByConversation(conversationId, MEMORY_WINDOW_SIZE);
+
+        List<org.springframework.ai.chat.messages.Message> messages = new ArrayList<>();
+        messages.add(new org.springframework.ai.chat.messages.SystemMessage(SYSTEM_PROMPT));
+
+        for (Message m : history) {
+            // Skip the current user message (already saved by controller) to avoid duplication
+            if ("USER".equals(m.getRole()) && m.getContent().equals(currentMessage)) {
+                continue;
+            }
+            if ("USER".equals(m.getRole())) {
+                messages.add(new org.springframework.ai.chat.messages.UserMessage(m.getContent()));
+            } else if ("ASSISTANT".equals(m.getRole())) {
+                messages.add(new org.springframework.ai.chat.messages.AssistantMessage(m.getContent()));
+            }
+        }
+
+        // Append current user message as the final prompt
+        messages.add(new org.springframework.ai.chat.messages.UserMessage(currentMessage));
+        return messages;
+    }
+
+    /**
+     * Basic chat with DB sliding window memory.
      */
     public String doChat(String message, String chatId) {
+        List<org.springframework.ai.chat.messages.Message> context = buildContext(chatId, message);
         ChatResponse chatResponse = chatClient
                 .prompt()
-                .user(message).advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .messages(context)
+                .advisors(new MyLoggerAdvisor())
                 .call()
                 .chatResponse();
-        String content = chatResponse.getResult().getOutput().getText();
-//        log.info("content: {}", content);
-        return content;
+        return chatResponse.getResult().getOutput().getText();
     }
 
     public SseEmitter doChatStream(String message, String chatId) {
+        List<org.springframework.ai.chat.messages.Message> context = buildContext(chatId, message);
+
         SseEmitter sseEmitter = new SseEmitter(1000000L);
 
-        // 客户端断开标记，volatile 数组保证跨线程可见
         final boolean[] disconnected = {false};
 
         sseEmitter.onCompletion(() -> disconnected[0] = true);
         sseEmitter.onTimeout(() -> {
             disconnected[0] = true;
-            log.warn("SSE 连接超时");
+            log.warn("SSE timeout");
         });
 
         Flux<ChatResponse> flux = chatClient.prompt()
-                .user(message)
+                .messages(context)
                 .advisors(new MyLoggerAdvisor())
-                .advisors(new MessageChatMemoryAdvisor(chatMemory))
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .stream()
                 .chatResponse()
-                // 客户端断开后立即终止 Flux，不再消耗 LLM token
                 .takeWhile(resp -> !disconnected[0]);
 
         flux.doOnNext(chatResponse -> {
@@ -126,9 +169,8 @@ public class CarApp {
                     sseEmitter.send(SseEmitter.event().data(content));
                 }
             } catch (IOException e) {
-                // SSE 发送失败 = 客户端断开，设标记终止 Flux
                 disconnected[0] = true;
-                log.info("客户端已断开，停止流式输出");
+                log.info("Client disconnected, stopping stream");
             }
         }).doOnComplete(() -> {
             if (!disconnected[0]) {
@@ -136,26 +178,25 @@ public class CarApp {
             }
         }).doOnError(e -> {
             if (!disconnected[0]) {
-                log.error("流式对话异常", e);
+                log.error("Stream error", e);
                 sseEmitter.completeWithError(e);
             }
         }).subscribe();
 
         return sseEmitter;
     }
-    record LoveReport(String title, List<String> suggestions) {
-    }
 
-    /**
-     * 聊天并生成恋爱报告
-     */
+    // ============================================================
+    // Legacy methods (not currently used by ChatRouterService)
+    // ============================================================
+
+    record LoveReport(String title, List<String> suggestions) {}
+
     public LoveReport doChatWithReport(String message, String chatId) {
         LoveReport loveReport = chatClient
                 .prompt()
-                .system(SYSTEM_PROMPT + "每次对话后都要生成恋爱结果，标题为{用户名}的恋爱报告，内容为建议列表")
+                .system(SYSTEM_PROMPT)
                 .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 1))
                 .call()
                 .entity(LoveReport.class);
         log.info("loveReport: {}", loveReport);
@@ -171,29 +212,11 @@ public class CarApp {
     @Resource
     private VectorStore pgVectorVectorStore;
 
-    /**
-     * 和 RAG 知识库进行对话
-     *
-     * @param message
-     * @param chatId
-     * @return
-     */
     public String doChatWithRag(String message, String chatId) {
-        // 查询重写
         ChatResponse chatResponse = chatClient
                 .prompt()
-                // 开启日志，便于观察效果
                 .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new MyLoggerAdvisor())
-                // 应用 RAG 知识库问答
-//                .advisors(new QuestionAnswerAdvisor(loveAppVectorStore))
-                // 应用 RAG 检索增强服务（基于云知识库服务）
-//                .advisors(loveAppRagCloudAdvisor)
-                // 应用 RAG 检索增强服务（基于 PgVector 向量存储）
-//                .advisors(new QuestionAnswerAdvisor(pgVectorVectorStore))
-                // 应用自定义的 RAG 检索增强服务（文档查询器 + 上下文增强器）
                 .advisors(
                         LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
                                 loveAppVectorStore, "购车问答-换车篇.md"
@@ -209,14 +232,9 @@ public class CarApp {
     @Resource
     private ToolCallback[] allTools;
 
-    /**
-     * 结合工具（向量知识库）进行对话
-     */
     public String doChatWithTools(String message, String chatId) {
         ChatResponse chatResponse = chatClient.prompt()
                 .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new MyLoggerAdvisor())
                 .tools(allTools)
                 .call()
@@ -225,6 +243,7 @@ public class CarApp {
         log.info("content: {}", content);
         return content;
     }
+
     @Resource
     private ToolCallbackProvider toolCallbackProvider;
 
@@ -232,8 +251,6 @@ public class CarApp {
         ChatResponse response = chatClient
                 .prompt()
                 .user(message)
-                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
-                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
                 .advisors(new MyLoggerAdvisor())
                 .tools(toolCallbackProvider)
                 .call()
@@ -243,4 +260,3 @@ public class CarApp {
         return content;
     }
 }
-

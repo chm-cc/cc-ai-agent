@@ -89,48 +89,6 @@ async function parseSseStream(response, options, signal) {
   }
 }
 
-/**
- * AI 选车大师 - SSE 流式对话
- * 对应后端 GET /ai/car/sse
- */
-export async function doChatWithCarAppSse(message, chatId, { onChunk, signal } = {}) {
-  const params = new URLSearchParams({ message, chatId })
-  const response = await fetch(`${BASE_URL}/ai/car/sse?${params}`, {
-    signal,
-    headers: getAuthHeaders(),
-  })
-
-  if (response.status === 401) {
-    handleUnauthorized()
-  }
-  if (!response.ok) {
-    throw new Error(`请求失败: ${response.status}`)
-  }
-
-  await parseSseStream(response, { onChunk, signal })
-}
-
-/**
- * AI 超级智能体 - SSE 流式对话
- * 对应后端 GET /ai/car/manus/chat
- */
-export async function doChatWithManus(message, { onChunk, signal } = {}) {
-  const params = new URLSearchParams({ message })
-  const response = await fetch(`${BASE_URL}/ai/car/manus/chat?${params}`, {
-    signal,
-    headers: getAuthHeaders(),
-  })
-
-  if (response.status === 401) {
-    handleUnauthorized()
-  }
-  if (!response.ok) {
-    throw new Error(`请求失败: ${response.status}`)
-  }
-
-  await parseSseStream(response, { onChunk, signal })
-}
-
 // ============================================================
 // 一期：AI Agent Center 接口
 // ============================================================
@@ -217,6 +175,12 @@ export async function updateFeedback(conversationId, msgId, feedback) {
 /** 重命名会话 */
 export async function renameConversation(id, title) {
   await request.put(`/v1/conversations/${id}`, { title })
+}
+
+/** 自动生成会话标题 */
+export async function generateConversationTitle(id) {
+  const res = await request.post(`/v1/conversations/${id}/generate-title`)
+  return res.data.data
 }
 
 export { request }

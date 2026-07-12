@@ -1,7 +1,8 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import ChatRoom from '../components/ChatRoom.vue'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 import {
   fetchAgents,
   fetchConversations,
@@ -11,11 +12,13 @@ import {
   renameConversation,
   saveMessage,
   updateFeedback,
+  generateConversationTitle,
   doChatWithConversationStream
 } from '../api/chat'
 import { useChat } from '../composables/useChat'
 
 const route = useRoute()
+const router = useRouter()
 const agentId = computed(() => route.params.agentId)
 
 const agent = ref(null)
@@ -25,12 +28,50 @@ const sidebarOpen = ref(true)
 const renamingId = ref(null)
 const renameTitle = ref('')
 
-onMounted(async () => {
+// 删除确认弹窗状态
+const deleteDialog = ref({
+  visible: false,
+  convId: null,
+  convTitle: '',
+  loading: false,
+})
+
+// 已尝试生成标题的会话 ID 集合，避免重复请求
+const generatedTitles = new Set()
+
+// 进入/切换 Agent 时的初始化逻辑
+async function initAgent() {
+  const isFromHome = route.query._new === '1'
+
   try {
     const agents = await fetchAgents()
     agent.value = agents.find(a => a.id === agentId.value) || null
   } catch (e) { /* ignore */ }
   await refreshConversations()
+
+  if (isFromHome) {
+    // 从首页点击进入 → 始终开启新会话
+    await handleNewChat()
+    // 清除 URL 标记，刷新后走"加载最近会话"逻辑
+    router.replace({ query: {} })
+  } else if (conversations.value.length > 0) {
+    // 刷新页面 → 加载最近一个会话
+    await handleSelectConv(conversations.value[0])
+  } else {
+    await handleNewChat()
+  }
+}
+
+onMounted(initAgent)
+
+// 切换 Agent 时重新初始化（同一路由不同 agentId 组件复用场景）
+watch(agentId, async (newId, oldId) => {
+  if (newId !== oldId) {
+    await cleanupEmptyConv()
+    activeConvId.value = null
+    messages.value = []
+    await initAgent()
+  }
 })
 
 async function refreshConversations() {
@@ -41,12 +82,32 @@ async function refreshConversations() {
 }
 
 // AI 回复完成 → 存入数据库
-async function onAiDone(fullText) {
-  if (!activeConvId.value || !fullText) return
+async function onAiDone({ content }) {
+  if (!activeConvId.value) return
   try {
-    await saveMessage(activeConvId.value, 'ASSISTANT', fullText)
-    await refreshConversations()
+    if (content) {
+      await saveMessage(activeConvId.value, 'ASSISTANT', content)
+      await refreshConversations()
+    }
+    // 首轮对话完成后，若标题仍为默认值则自动生成
+    await tryGenerateTitle()
   } catch (e) { console.error('保存AI回复失败', e) }
+}
+
+async function tryGenerateTitle() {
+  const cid = activeConvId.value
+  if (!cid || generatedTitles.has(cid)) return
+  // 找到当前会话，检查标题是否为默认值
+  const conv = conversations.value.find(c => c.id === cid)
+  if (!conv || conv.title !== '新对话') return
+
+  generatedTitles.add(cid)
+  try {
+    const title = await generateConversationTitle(cid)
+    if (title) {
+      await refreshConversations()
+    }
+  } catch (e) { /* 生成失败不影响正常使用，用户可手动修改 */ }
 }
 
 const { messages, loading, send, retry, abort } = useChat(
@@ -57,8 +118,23 @@ const { messages, loading, send, retry, abort } = useChat(
   { onDone: onAiDone }
 )
 
+// 清理空会话：当前会话没有任何消息时自动删除
+async function cleanupEmptyConv() {
+  if (activeConvId.value && messages.value.length === 0) {
+    try {
+      await deleteConversation(activeConvId.value)
+    } catch (e) { /* ignore */ }
+  }
+}
+
+// 离开页面时清理空会话
+onBeforeUnmount(() => {
+  cleanupEmptyConv()
+})
+
 async function handleNewChat() {
   try {
+    await cleanupEmptyConv()
     const conv = await createConversation(agentId.value, '新对话')
     activeConvId.value = conv.id
     messages.value = []
@@ -67,6 +143,7 @@ async function handleNewChat() {
 }
 
 async function handleSelectConv(conv) {
+  await cleanupEmptyConv()
   activeConvId.value = conv.id
   // 加载历史消息
   try {
@@ -84,16 +161,34 @@ async function handleSelectConv(conv) {
   }
 }
 
-async function handleDeleteConv(id) {
-  if (!confirm('确定删除该会话？')) return
+function handleDeleteConv(conv) {
+  deleteDialog.value = {
+    visible: true,
+    convId: conv.id,
+    convTitle: conv.title || '新对话',
+    loading: false,
+  }
+}
+
+async function confirmDelete() {
+  deleteDialog.value.loading = true
   try {
-    await deleteConversation(id)
-    if (activeConvId.value === id) {
+    await deleteConversation(deleteDialog.value.convId)
+    if (activeConvId.value === deleteDialog.value.convId) {
       activeConvId.value = null
       messages.value = []
     }
     await refreshConversations()
-  } catch (e) { console.error('删除失败', e) }
+    deleteDialog.value.visible = false
+  } catch (e) {
+    console.error('删除失败', e)
+  } finally {
+    deleteDialog.value.loading = false
+  }
+}
+
+function cancelDelete() {
+  deleteDialog.value.visible = false
 }
 
 function startRename(conv) {
@@ -171,7 +266,7 @@ function formatTime(ts) {
           </div>
           <div class="conv-meta">
             <span class="conv-time">{{ formatTime(conv.updatedAt || conv.createdAt) }}</span>
-            <button class="btn-del" @click.stop="handleDeleteConv(conv.id)" title="删除">×</button>
+            <button class="btn-del" @click.stop="handleDeleteConv(conv)" title="删除">×</button>
           </div>
         </div>
 
@@ -207,6 +302,19 @@ function formatTime(ts) {
       </div>
     </main>
   </div>
+
+  <!-- 删除确认弹窗 -->
+  <ConfirmDialog
+    :visible="deleteDialog.visible"
+    title="删除会话"
+    description="删除后将无法恢复，该会话下的所有消息记录将被永久清除。"
+    :detail="deleteDialog.convTitle"
+    confirm-text="删除"
+    danger
+    :loading="deleteDialog.loading"
+    @confirm="confirmDelete"
+    @cancel="cancelDelete"
+  />
 </template>
 
 <style scoped>

@@ -11,7 +11,7 @@ import { ref, onUnmounted } from 'vue'
  *   - signal: AbortSignal，用于取消请求
  *   - onChunk: (text: string) => void，收到一段流式文本时回调
  * @param {Object} [opts] - 额外选项
- * @param {Function} [opts.onDone] - SSE 流完成时的回调 (fullText: string, role: 'assistant') => void
+ * @param {Function} [opts.onDone] - SSE 流完成时的回调 ({ content, thoughts, role }) => void
  *
  * @returns {{ messages, loading, send, retry, abort, clear }}
  *   - messages: Ref<Message[]>  消息数组，传给 ChatRoom 的 v-model:messages
@@ -90,9 +90,13 @@ export function useChat(streamFn, opts = {}) {
     // 5. 非错误状态 → 完成锁定
     if (messages.value[aiIndex].status !== 'error') {
       messages.value[aiIndex].status = 'done'
-      // 通知外部：AI 回复完成
-      if (onDone && messages.value[aiIndex].content) {
-        onDone(messages.value[aiIndex].content, 'ASSISTANT')
+      // 通知外部：AI 回复完成（即使 content 为空也触发，CcManus 可能只输出 thinking）
+      if (onDone) {
+        onDone({
+          content: messages.value[aiIndex].content,
+          thoughts: messages.value[aiIndex].thoughts,
+          role: 'ASSISTANT',
+        })
       }
     }
   }

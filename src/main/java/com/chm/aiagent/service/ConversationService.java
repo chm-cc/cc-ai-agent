@@ -17,6 +17,9 @@ public class ConversationService {
     private final ConversationRepository conversationRepository;
 
     public ConversationVO create(String agentId, String userId, String title) {
+        // 清理该用户在此 Agent 下所有未发过消息的历史空会话
+        conversationRepository.deleteEmptyByUserAndAgent(userId, agentId);
+
         Conversation c = new Conversation();
         c.setId(UUID.randomUUID().toString());
         c.setAgentId(agentId);

@@ -1,5 +1,6 @@
 package com.chm.aiagent.controller;
 
+import com.chm.aiagent.app.CarApp;
 import com.chm.aiagent.common.Result;
 import com.chm.aiagent.dto.*;
 import com.chm.aiagent.model.Conversation;
@@ -23,6 +24,7 @@ public class ConversationController {
     private final ConversationService conversationService;
     private final MessageService messageService;
     private final ChatRouterService chatRouterService;
+    private final CarApp carApp;
 
     private String currentUserId() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
@@ -77,6 +79,27 @@ public class ConversationController {
     public Result<Void> feedback(@PathVariable String id, @PathVariable Long msgId, @RequestBody FeedbackRequest req) {
         messageService.updateFeedback(msgId, req.getFeedback());
         return Result.ok();
+    }
+
+    @PostMapping("/{id}/generate-title")
+    public Result<String> generateTitle(@PathVariable String id) {
+        List<MessageVO> messages = messageService.list(id, 1, 2);
+        if (messages.isEmpty()) {
+            return Result.ok(null);
+        }
+        String userMsg = messages.stream()
+            .filter(m -> "USER".equals(m.getRole()))
+            .findFirst().map(MessageVO::getContent).orElse("");
+        String assistantMsg = messages.stream()
+            .filter(m -> "ASSISTANT".equals(m.getRole()))
+            .findFirst().map(MessageVO::getContent).orElse("");
+
+        // 即使只有 USER 消息（CcManus content 可能为空），也基于用户问题生成标题
+        String title = carApp.generateTitle(userMsg, assistantMsg);
+        if (title != null && !title.isBlank()) {
+            conversationService.rename(id, title);
+        }
+        return Result.ok(title);
     }
 
     @PostMapping("/{id}/chat/stream")

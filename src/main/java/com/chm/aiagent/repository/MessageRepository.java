@@ -46,4 +46,13 @@ public class MessageRepository {
     public void updateFeedback(Long msgId, String feedback) {
         jdbc.update("UPDATE messages SET feedback = ? WHERE id = ?", feedback, msgId);
     }
+
+    /**
+     * 取最近 N 条消息（按时间升序），用于构建 LLM 上下文窗口
+     */
+    public List<Message> findRecentByConversation(String conversationId, int limit) {
+        return jdbc.query(
+            "SELECT * FROM (SELECT * FROM messages WHERE conversation_id = ? ORDER BY created_at DESC LIMIT ?) sub ORDER BY created_at ASC",
+            rowMapper, conversationId, limit);
+    }
 }

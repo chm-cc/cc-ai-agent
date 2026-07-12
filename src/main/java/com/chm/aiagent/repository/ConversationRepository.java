@@ -77,4 +77,10 @@ public class ConversationRepository {
     public void rename(String id, String title) {
         jdbc.update("UPDATE conversations SET title = ?, updated_at = now() WHERE id = ?", title, id);
     }
+
+    public int deleteEmptyByUserAndAgent(String userId, String agentId) {
+        return jdbc.update(
+            "DELETE FROM conversations WHERE user_id = ? AND agent_id = ? AND message_count = 0",
+            userId, agentId);
+    }
 }

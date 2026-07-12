@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
-import CarChat from '../views/CarChat.vue'
-import ManusChat from '../views/ManusChat.vue'
 import AgentChat from '../views/AgentChat.vue'
 import Login from '../views/Login.vue'
 import { routeSeo } from '../config/site'
@@ -24,15 +22,11 @@ const routes = [
   },
   {
     path: '/car',
-    name: 'CarChat',
-    component: CarChat,
-    meta: { seo: routeSeo.CarChat, hideFooter: true, requiresAuth: true },
+    redirect: '/chat/car-advisor',
   },
   {
     path: '/manus',
-    name: 'ManusChat',
-    component: ManusChat,
-    meta: { seo: routeSeo.ManusChat, hideFooter: true, requiresAuth: true },
+    redirect: '/chat/super-agent',
   },
   {
     path: '/chat/:agentId',
