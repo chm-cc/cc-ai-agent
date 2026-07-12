@@ -1,0 +1,6 @@
+{
+  "envId": "ai-agent-0712-d9g4ama4k16394917",
+  "cloudrun": {
+    "name": "ai-agent-0712"
+  }
+}

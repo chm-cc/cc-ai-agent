@@ -9,20 +9,14 @@ spring:
         index-type: HNSW
         distance-type: COSINE_DISTANCE
         max-document-batch-size: 10000
-  #    mcp:
-  #      client:
-  #        sse:
-  #          connections:
-  #            server1:
-  ##              url: ${MCP_SERVER_URL:http://localhost:8127}
-  #  datasource:
-  #    url: ${DB_URL:jdbc:postgresql://localhost:5432/yu_ai_agent}
-  #    username: ${DB_USERNAME:}
-  #    password: ${DB_PASSWORD:}
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/yu_ai_agent}
+    username: ${DB_USERNAME:aiagent}
+    password: ${DB_PASSWORD:changeme}
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
 
 search-api:
   api-key: ${SEARCH_API_KEY:}
@@ -31,3 +25,27 @@ app:
   jwt:
     secret: ${JWT_SECRET:ai-agent-jwt-secret-key-change-in-production-256bit}
     expiration: ${JWT_EXPIRATION:86400000}
+
+agents:
+  - id: car-advisor
+    name: AI 选车大师
+    description: 专业选车顾问，根据预算、用途提供个性化购车建议
+    icon: "\U0001F697"
+    category: advisor
+    tags:
+      - 智能推荐
+      - 多轮对话
+      - 知识库
+    status: ACTIVE
+    sortOrder: 1
+  - id: super-agent
+    name: AI 超级智能体
+    description: 具备工具调用能力，可执行搜索、文件操作等复杂任务
+    icon: "\U0001F916"
+    category: productivity
+    tags:
+      - 工具调用
+      - 深度思考
+      - 多步推理
+    status: ACTIVE
+    sortOrder: 2

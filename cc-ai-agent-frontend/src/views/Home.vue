@@ -1,3 +1,33 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { fetchAgents } from '../api/chat'
+
+const router = useRouter()
+const agents = ref([])
+const loading = ref(true)
+const error = ref('')
+
+onMounted(async () => {
+  try {
+    agents.value = await fetchAgents()
+  } catch (e) {
+    error.value = e.message || '加载失败'
+  } finally {
+    loading.value = false
+  }
+})
+
+function cardClass(agent) {
+  if (agent.category === 'productivity') return 'card-manus'
+  return 'card-car'
+}
+
+function goChat(agent) {
+  router.push({ name: 'AgentChat', params: { agentId: agent.id } })
+}
+</script>
+
 <template>
   <main class="home">
     <header class="hero">
@@ -7,44 +37,32 @@
       <div class="hero-line"></div>
     </header>
 
-    <section class="app-grid" aria-label="应用列表">
-      <!-- 选车大师卡片 -->
-      <router-link to="/car" class="app-card card-car">
-        <div class="card-glow"></div>
-        <div class="card-icon car-icon" aria-hidden="true">🚗</div>
-        <h2 class="card-title">AI 选车大师</h2>
-        <p class="card-desc">
-          专业选车顾问，根据预算、用途、偏好提供个性化购车建议，支持多轮对话记忆。
-        </p>
-        <div class="card-tags">
-          <span class="tag">智能推荐</span>
-          <span class="tag">多轮对话</span>
-          <span class="tag">知识库</span>
-        </div>
-        <span class="card-action">
-          进入体验
-          <span class="arrow">→</span>
-        </span>
-      </router-link>
+    <div v-if="loading" class="loading">加载中...</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-else-if="agents.length === 0" class="empty">暂无可用的智能体</div>
 
-      <!-- 超级智能体卡片 -->
-      <router-link to="/manus" class="app-card card-manus">
+    <section v-else class="app-grid" aria-label="应用列表">
+      <div
+        v-for="agent in agents"
+        :key="agent.id"
+        class="app-card"
+        :class="cardClass(agent)"
+        @click="goChat(agent)"
+      >
         <div class="card-glow"></div>
-        <div class="card-icon manus-icon" aria-hidden="true">🤖</div>
-        <h2 class="card-title">AI 超级智能体</h2>
-        <p class="card-desc">
-          具备工具调用能力的超级智能体，可执行网页搜索、文件操作、命令执行等复杂任务。
-        </p>
+        <div class="card-icon" :class="agent.category === 'productivity' ? 'manus-icon' : 'car-icon'" aria-hidden="true">
+          {{ agent.icon || '🤖' }}
+        </div>
+        <h2 class="card-title">{{ agent.name }}</h2>
+        <p class="card-desc">{{ agent.description }}</p>
         <div class="card-tags">
-          <span class="tag">工具调用</span>
-          <span class="tag">深度思考</span>
-          <span class="tag">多步推理</span>
+          <span v-for="tag in agent.tags" :key="tag" class="tag">{{ tag }}</span>
         </div>
         <span class="card-action">
           进入体验
           <span class="arrow">→</span>
         </span>
-      </router-link>
+      </div>
     </section>
   </main>
 </template>
@@ -58,7 +76,14 @@
   width: 100%;
 }
 
-/* ====== Hero ====== */
+.loading, .error, .empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.error { color: #dc2626; }
 
 .hero {
   text-align: center;
@@ -103,15 +128,11 @@
   margin: 0 auto;
 }
 
-/* ====== 卡片网格 ====== */
-
 .app-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
   gap: 28px;
 }
-
-/* ====== 卡片通用 ====== */
 
 .app-card {
   position: relative;
@@ -120,6 +141,7 @@
   padding: 32px;
   border-radius: 20px;
   overflow: hidden;
+  cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -133,48 +155,29 @@
 
 .card-glow {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   pointer-events: none;
   z-index: 0;
   transition: opacity 0.3s;
 }
 
-/* ====== 选车大师卡片（极客简蓝） ====== */
-
 .card-car {
   background: #fff;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .card-car:hover {
-  box-shadow:
-    0 8px 30px rgba(37, 99, 235, 0.1),
-    0 0 0 1px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 8px 30px rgba(37,99,235,0.1), 0 0 0 1px rgba(37,99,235,0.2);
 }
 
 .card-car .card-glow {
-  background: radial-gradient(ellipse at 50% 0%, rgba(37, 99, 235, 0.04) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(37,99,235,0.04) 0%, transparent 60%);
 }
 
-.card-car:hover .card-glow {
-  opacity: 1.5;
-}
-
-.card-car .card-title {
-  color: #0f172a;
-}
-
-.card-car .card-desc {
-  color: #64748b;
-}
-
-.card-car .card-action {
-  color: #2563eb;
-}
+.card-car .card-title { color: #0f172a; }
+.card-car .card-desc { color: #64748b; }
+.card-car .card-action { color: #2563eb; }
 
 .card-car .tag {
   background: #eff6ff;
@@ -189,48 +192,34 @@
   border: 1px solid #dbeafe;
 }
 
-/* ====== 超级智能体卡片（紫蓝渐变卡通风） ====== */
-
 .card-manus {
   background: linear-gradient(160deg, #faf5ff 0%, #f3e8ff 40%, #e8f0fe 100%);
-  border: 1px solid rgba(139, 92, 246, 0.12);
-  box-shadow: 0 4px 24px rgba(139, 92, 246, 0.06);
+  border: 1px solid rgba(139,92,246,0.12);
+  box-shadow: 0 4px 24px rgba(139,92,246,0.06);
 }
 
 .card-manus:hover {
-  box-shadow:
-    0 12px 40px rgba(139, 92, 246, 0.12),
-    0 0 0 1px rgba(139, 92, 246, 0.25);
+  box-shadow: 0 12px 40px rgba(139,92,246,0.12), 0 0 0 1px rgba(139,92,246,0.25);
 }
 
 .card-manus .card-glow {
-  background: radial-gradient(ellipse at 50% 0%, rgba(139, 92, 246, 0.06) 0%, transparent 60%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.06) 0%, transparent 60%);
 }
 
-.card-manus .card-title {
-  color: #5b21b6;
-}
-
-.card-manus .card-desc {
-  color: #786e92;
-}
-
-.card-manus .card-action {
-  color: #7c3aed;
-}
+.card-manus .card-title { color: #5b21b6; }
+.card-manus .card-desc { color: #786e92; }
+.card-manus .card-action { color: #7c3aed; }
 
 .card-manus .tag {
-  background: rgba(139, 92, 246, 0.06);
+  background: rgba(139,92,246,0.06);
   color: #7c3aed;
-  border: 1px solid rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139,92,246,0.1);
 }
 
 .manus-icon {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.06));
-  border: 1px solid rgba(139, 92, 246, 0.18);
+  background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(99,102,241,0.06));
+  border: 1px solid rgba(139,92,246,0.18);
 }
-
-/* ====== 卡片元素 ====== */
 
 .card-icon {
   position: relative;
@@ -293,51 +282,18 @@
   transition: transform 0.25s ease;
 }
 
-/* ====== 响应式 ====== */
-
 @media (max-width: 768px) {
-  .home {
-    padding: 48px 20px 32px;
-  }
-
-  .hero-title {
-    font-size: 30px;
-  }
-
-  .hero-desc {
-    font-size: 15px;
-  }
-
-  .app-grid {
-    grid-template-columns: 1fr;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-
-  .app-card {
-    padding: 24px;
-  }
+  .home { padding: 48px 20px 32px; }
+  .hero-title { font-size: 30px; }
+  .hero-desc { font-size: 15px; }
+  .app-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+  .app-card { padding: 24px; }
 }
 
 @media (max-width: 480px) {
-  .hero-title {
-    font-size: 26px;
-  }
-
-  .app-card {
-    padding: 20px;
-    border-radius: 16px;
-  }
-
-  .card-icon {
-    width: 48px;
-    height: 48px;
-    font-size: 24px;
-    border-radius: 12px;
-  }
-
-  .card-title {
-    font-size: 18px;
-  }
+  .hero-title { font-size: 26px; }
+  .app-card { padding: 20px; border-radius: 16px; }
+  .card-icon { width: 48px; height: 48px; font-size: 24px; border-radius: 12px; }
+  .card-title { font-size: 18px; }
 }
 </style>

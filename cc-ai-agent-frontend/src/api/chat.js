@@ -131,4 +131,73 @@ export async function doChatWithManus(message, { onChunk, signal } = {}) {
   await parseSseStream(response, { onChunk, signal })
 }
 
+// ============================================================
+// 一期：AI Agent Center 接口
+// ============================================================
+
+/**
+ * 获取可用 Agent 列表
+ */
+export async function fetchAgents() {
+  const res = await request.get('/v1/agents')
+  return res.data.data
+}
+
+/**
+ * 创建会话
+ */
+export async function createConversation(agentId, title) {
+  const res = await request.post('/v1/conversations', { agentId, title })
+  return res.data.data
+}
+
+/**
+ * 获取会话列表
+ */
+export async function fetchConversations(agentId, page = 1, size = 20) {
+  const params = { page, size }
+  if (agentId) params.agentId = agentId
+  const res = await request.get('/v1/conversations', { params })
+  return res.data.data
+}
+
+/**
+ * 删除会话
+ */
+export async function deleteConversation(id) {
+  await request.delete(`/v1/conversations/${id}`)
+}
+
+/**
+ * 获取会话历史消息
+ */
+export async function fetchMessages(conversationId, page = 1, size = 50) {
+  const res = await request.get(`/v1/conversations/${conversationId}/messages`, { params: { page, size } })
+  return res.data.data
+}
+
+/**
+ * 基于会话的 SSE 流式对话
+ */
+export async function doChatWithConversationStream(conversationId, message, { onChunk, signal } = {}) {
+  const response = await fetch(`${BASE_URL}/v1/conversations/${conversationId}/chat/stream`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify({ message }),
+    signal,
+  })
+
+  if (response.status === 401) {
+    handleUnauthorized()
+  }
+  if (!response.ok) {
+    throw new Error(`请求失败: ${response.status}`)
+  }
+
+  await parseSseStream(response, { onChunk, signal })
+}
+
 export { request }

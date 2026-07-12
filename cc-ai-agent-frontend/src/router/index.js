@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import CarChat from '../views/CarChat.vue'
 import ManusChat from '../views/ManusChat.vue'
+import AgentChat from '../views/AgentChat.vue'
 import Login from '../views/Login.vue'
 import { routeSeo } from '../config/site'
 import { updatePageSeo } from '../utils/seo'
@@ -32,6 +33,12 @@ const routes = [
     name: 'ManusChat',
     component: ManusChat,
     meta: { seo: routeSeo.ManusChat, hideFooter: true, requiresAuth: true },
+  },
+  {
+    path: '/chat/:agentId',
+    name: 'AgentChat',
+    component: AgentChat,
+    meta: { seo: { title: 'AI 对话' }, hideFooter: true, requiresAuth: true },
   },
   {
     path: '/:pathMatch(.*)*',
