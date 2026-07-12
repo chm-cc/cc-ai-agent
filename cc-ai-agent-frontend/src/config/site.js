@@ -9,6 +9,7 @@ export const siteConfig = {
   url: import.meta.env.VITE_SITE_URL || 'https://example.com',
   author: import.meta.env.VITE_SITE_AUTHOR || 'CC AI Agent Team',
   copyrightHolder: import.meta.env.VITE_COPYRIGHT_HOLDER || 'CC AI Agent Team',
+  wechat: import.meta.env.VITE_WECHAT || 'min_1282857357',
   icpNumber: import.meta.env.VITE_ICP_NUMBER || '',
   locale: 'zh_CN',
 }

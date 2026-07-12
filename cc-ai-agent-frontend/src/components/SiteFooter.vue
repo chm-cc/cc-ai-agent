@@ -11,6 +11,10 @@ const currentYear = computed(() => new Date().getFullYear())
       <p class="copyright">
         &copy; {{ currentYear }} {{ siteConfig.copyrightHolder }}
       </p>
+      <span class="sep" v-if="siteConfig.wechat">·</span>
+      <p v-if="siteConfig.wechat" class="wechat">
+        微信号：{{ siteConfig.wechat }}
+      </p>
       <span class="sep" v-if="siteConfig.icpNumber">·</span>
       <p v-if="siteConfig.icpNumber" class="icp">
         <a
@@ -46,6 +50,10 @@ const currentYear = computed(() => new Date().getFullYear())
 
 .sep {
   color: #ddd;
+}
+
+.wechat {
+  color: #aaa;
 }
 
 .icp a {
