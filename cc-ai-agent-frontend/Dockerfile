@@ -9,7 +9,7 @@ WORKDIR /build
 
 # 利用 Docker 缓存加速依赖安装
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev 2>/dev/null || npm install
+RUN npm install
 
 # 拷贝源码并构建
 COPY . .

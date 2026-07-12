@@ -8,7 +8,6 @@ spring:
 #      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
 #      chat:
 #        model: ${OLLAMA_MODEL:qwen2.5:7b}
-#  datasource:
 #    url: ${DB_URL}
 #    username: ${DB_USERNAME}
 #    password: ${DB_PASSWORD}

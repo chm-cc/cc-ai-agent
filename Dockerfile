@@ -1,16 +1,28 @@
-# 使用预装 Maven 和 JDK21 的镜像
-FROM maven:3.9-amazoncorretto-21
+# ============================================
+# Stage 1: 构建阶段 (Maven + JDK)
+# ============================================
+FROM maven:3.9-amazoncorretto-21 AS builder
 WORKDIR /app
 
-# 只复制必要的源代码和配置文件
+# 复制源码
 COPY pom.xml .
 COPY src ./src
 
-# 使用 Maven 执行打包
-RUN mvn clean package -DskipTests
+# 构建（跳过测试加速）
+RUN mvn clean package -DskipTests -B
 
-# 暴露应用端口
+# ============================================
+# Stage 2: 运行阶段 (JRE only — 大幅减小镜像)
+# ============================================
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+
+# 从构建阶段复制 jar
+COPY --from=builder /app/target/ai-agent-0.0.1-SNAPSHOT.jar app.jar
+
+# JVM 内存调优（适配 1GB 容器）
+ENV JAVA_OPTS="-Xmx512m -Xms256m -XX:+UseG1GC -XX:MaxMetaspaceSize=128m -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+
 EXPOSE 8123
 
-# 使用生产环境配置启动应用
-CMD ["java", "-jar", "/app/target/ai-agent-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar --spring.profiles.active=prod"]
