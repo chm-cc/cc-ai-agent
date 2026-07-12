@@ -51,6 +51,18 @@ public class ConversationController {
         return Result.ok();
     }
 
+    @PutMapping("/{id}")
+    public Result<Void> rename(@PathVariable String id, @RequestBody RenameRequest req) {
+        conversationService.rename(id, req.getTitle());
+        return Result.ok();
+    }
+
+    @PostMapping("/{id}/messages")
+    public Result<Void> saveMessage(@PathVariable String id, @RequestBody SaveMessageRequest req) {
+        messageService.save(id, req.getRole(), req.getContent());
+        return Result.ok();
+    }
+
     @GetMapping("/{id}/messages")
     public Result<Map<String, Object>> messages(
             @PathVariable String id,
@@ -59,6 +71,12 @@ public class ConversationController {
         List<MessageVO> list = messageService.list(id, page, size);
         int total = messageService.count(id);
         return Result.ok(Map.of("list", list, "total", total, "page", page, "size", size));
+    }
+
+    @PutMapping("/{id}/messages/{msgId}/feedback")
+    public Result<Void> feedback(@PathVariable String id, @PathVariable Long msgId, @RequestBody FeedbackRequest req) {
+        messageService.updateFeedback(msgId, req.getFeedback());
+        return Result.ok();
     }
 
     @PostMapping("/{id}/chat/stream")

@@ -5,8 +5,12 @@ import ChatRoom from '../components/ChatRoom.vue'
 import {
   fetchAgents,
   fetchConversations,
+  fetchMessages,
   createConversation,
   deleteConversation,
+  renameConversation,
+  saveMessage,
+  updateFeedback,
   doChatWithConversationStream
 } from '../api/chat'
 import { useChat } from '../composables/useChat'
@@ -18,13 +22,14 @@ const agent = ref(null)
 const conversations = ref([])
 const activeConvId = ref(null)
 const sidebarOpen = ref(true)
+const renamingId = ref(null)
+const renameTitle = ref('')
 
-// Load agent info
 onMounted(async () => {
   try {
     const agents = await fetchAgents()
     agent.value = agents.find(a => a.id === agentId.value) || null
-  } catch (e) { /* agent info optional */ }
+  } catch (e) { /* ignore */ }
   await refreshConversations()
 })
 
@@ -35,11 +40,22 @@ async function refreshConversations() {
   } catch (e) { /* ignore */ }
 }
 
-// Chat composable for active conversation
-const { messages, loading, send, retry, abort } = useChat((message, { signal, onChunk }) => {
-  if (!activeConvId.value) throw new Error('No conversation selected')
-  return doChatWithConversationStream(activeConvId.value, message, { onChunk, signal })
-})
+// AI 回复完成 → 存入数据库
+async function onAiDone(fullText) {
+  if (!activeConvId.value || !fullText) return
+  try {
+    await saveMessage(activeConvId.value, 'ASSISTANT', fullText)
+    await refreshConversations()
+  } catch (e) { console.error('保存AI回复失败', e) }
+}
+
+const { messages, loading, send, retry, abort } = useChat(
+  (message, { signal, onChunk }) => {
+    if (!activeConvId.value) throw new Error('No conversation selected')
+    return doChatWithConversationStream(activeConvId.value, message, { onChunk, signal })
+  },
+  { onDone: onAiDone }
+)
 
 async function handleNewChat() {
   try {
@@ -47,15 +63,25 @@ async function handleNewChat() {
     activeConvId.value = conv.id
     messages.value = []
     await refreshConversations()
-  } catch (e) {
-    console.error('创建会话失败', e)
-  }
+  } catch (e) { console.error('创建会话失败', e) }
 }
 
 async function handleSelectConv(conv) {
   activeConvId.value = conv.id
-  // For MVP, start fresh (ChatMemory handles context server-side)
-  messages.value = []
+  // 加载历史消息
+  try {
+    const data = await fetchMessages(conv.id)
+    const list = data.list || []
+    messages.value = list.map(m => ({
+      id: m.id,
+      role: m.role.toLowerCase(),
+      content: m.content,
+      feedback: m.feedback,
+      status: 'done'
+    }))
+  } catch (e) {
+    messages.value = []
+  }
 }
 
 async function handleDeleteConv(id) {
@@ -67,9 +93,35 @@ async function handleDeleteConv(id) {
       messages.value = []
     }
     await refreshConversations()
-  } catch (e) {
-    console.error('删除失败', e)
-  }
+  } catch (e) { console.error('删除失败', e) }
+}
+
+function startRename(conv) {
+  renamingId.value = conv.id
+  renameTitle.value = conv.title || ''
+}
+
+async function confirmRename() {
+  if (!renamingId.value || !renameTitle.value.trim()) return
+  try {
+    await renameConversation(renamingId.value, renameTitle.value.trim())
+    renamingId.value = null
+    await refreshConversations()
+  } catch (e) { console.error('重命名失败', e) }
+}
+
+function cancelRename() {
+  renamingId.value = null
+}
+
+async function handleFeedback(msgId, fb) {
+  if (!activeConvId.value || !msgId) return
+  try {
+    await updateFeedback(activeConvId.value, msgId, fb)
+    // 更新本地消息状态
+    const msg = messages.value.find(m => m.id === msgId)
+    if (msg) msg.feedback = fb
+  } catch (e) { console.error('反馈失败', e) }
 }
 
 function formatTime(ts) {
@@ -102,8 +154,19 @@ function formatTime(ts) {
           :class="{ active: conv.id === activeConvId }"
           @click="handleSelectConv(conv)"
         >
-          <div class="conv-main">
-            <div class="conv-title">{{ conv.title || '新对话' }}</div>
+          <div class="conv-main" @dblclick.stop="startRename(conv)">
+            <div v-if="renamingId === conv.id" class="conv-rename">
+              <input
+                v-model="renameTitle"
+                class="rename-input"
+                @keyup.enter="confirmRename"
+                @keyup.escape="cancelRename"
+                @blur="cancelRename"
+                @click.stop
+                autofocus
+              />
+            </div>
+            <div v-else class="conv-title">{{ conv.title || '新对话' }}</div>
             <div class="conv-preview">{{ conv.lastMessage || '' }}</div>
           </div>
           <div class="conv-meta">
@@ -136,6 +199,7 @@ function formatTime(ts) {
         @send="send"
         @retry="retry"
         @abort="abort"
+        @feedback="handleFeedback"
       />
       <div v-else class="chat-placeholder">
         <div class="placeholder-icon">💬</div>
@@ -232,6 +296,18 @@ function formatTime(ts) {
   overflow: hidden;
   text-overflow: ellipsis;
   margin-bottom: 2px;
+}
+
+.conv-rename { margin-bottom: 2px; }
+
+.rename-input {
+  width: 100%;
+  padding: 2px 6px;
+  font-size: 13px;
+  border: 1px solid #2563eb;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
 }
 
 .conv-preview {

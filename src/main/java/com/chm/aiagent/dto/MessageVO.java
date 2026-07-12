@@ -8,5 +8,6 @@ public class MessageVO {
     private Long id;
     private String role;
     private String content;
+    private String feedback;
     private LocalDateTime createdAt;
 }

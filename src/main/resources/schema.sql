@@ -16,6 +16,10 @@ CREATE TABLE IF NOT EXISTS messages (
     conversation_id  VARCHAR(36)  NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
     role             VARCHAR(16)  NOT NULL,
     content          TEXT         NOT NULL,
+    feedback         VARCHAR(16),
     created_at       TIMESTAMP    DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_msg_conv ON messages(conversation_id, created_at);
+
+-- 兼容已有数据库，补充 feedback 列
+ALTER TABLE messages ADD COLUMN IF NOT EXISTS feedback VARCHAR(16);

@@ -73,4 +73,8 @@ public class ConversationRepository {
     public void deleteById(String id) {
         jdbc.update("DELETE FROM conversations WHERE id = ?", id);
     }
+
+    public void rename(String id, String title) {
+        jdbc.update("UPDATE conversations SET title = ?, updated_at = now() WHERE id = ?", title, id);
+    }
 }

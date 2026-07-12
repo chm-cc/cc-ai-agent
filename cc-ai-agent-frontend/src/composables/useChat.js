@@ -10,6 +10,8 @@ import { ref, onUnmounted } from 'vue'
  *   - message: 用户输入的文本
  *   - signal: AbortSignal，用于取消请求
  *   - onChunk: (text: string) => void，收到一段流式文本时回调
+ * @param {Object} [opts] - 额外选项
+ * @param {Function} [opts.onDone] - SSE 流完成时的回调 (fullText: string, role: 'assistant') => void
  *
  * @returns {{ messages, loading, send, retry, abort, clear }}
  *   - messages: Ref<Message[]>  消息数组，传给 ChatRoom 的 v-model:messages
@@ -24,10 +26,11 @@ import { ref, onUnmounted } from 'vue'
  *   - user 消息无 status 字段
  *   - assistant 消息状态流转: sending → streaming → done | error
  */
-export function useChat(streamFn) {
+export function useChat(streamFn, opts = {}) {
   const messages = ref([])
   const loading = ref(false)
   const lastUserMessage = ref('')
+  const onDone = opts.onDone
   let abortController = null
 
   onUnmounted(() => {
@@ -87,6 +90,10 @@ export function useChat(streamFn) {
     // 5. 非错误状态 → 完成锁定
     if (messages.value[aiIndex].status !== 'error') {
       messages.value[aiIndex].status = 'done'
+      // 通知外部：AI 回复完成
+      if (onDone && messages.value[aiIndex].content) {
+        onDone(messages.value[aiIndex].content, 'ASSISTANT')
+      }
     }
   }
 

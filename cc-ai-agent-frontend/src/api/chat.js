@@ -200,4 +200,23 @@ export async function doChatWithConversationStream(conversationId, message, { on
   await parseSseStream(response, { onChunk, signal })
 }
 
+// ============================================================
+// 二期：消息持久化 + 反馈 + 重命名
+// ============================================================
+
+/** 保存消息（AI 回复完成后由前端调用） */
+export async function saveMessage(conversationId, role, content) {
+  await request.post(`/v1/conversations/${conversationId}/messages`, { role, content })
+}
+
+/** 消息反馈 */
+export async function updateFeedback(conversationId, msgId, feedback) {
+  await request.put(`/v1/conversations/${conversationId}/messages/${msgId}/feedback`, { feedback })
+}
+
+/** 重命名会话 */
+export async function renameConversation(id, title) {
+  await request.put(`/v1/conversations/${id}`, { title })
+}
+
 export { request }

@@ -10,7 +10,7 @@ const props = defineProps({
   theme: { type: String, default: 'default' },
 })
 
-const emit = defineEmits(['send', 'retry', 'abort'])
+const emit = defineEmits(['send', 'retry', 'abort', 'feedback'])
 
 const inputText = ref('')
 const messagesRef = ref(null)
@@ -170,6 +170,22 @@ function thinkingSummary(msg) {
           <div v-else-if="isError(msg)" class="error-footer">
             <span class="error-badge" :title="msg.error">发送失败</span>
             <button class="retry-btn" :disabled="loading" @click="handleRetry">重试</button>
+          </div>
+
+          <!-- AI 消息完成后的反馈按钮 -->
+          <div v-if="msg.role === 'assistant' && msg.status === 'done'" class="feedback-row">
+            <button
+              class="fb-btn"
+              :class="{ active: msg.feedback === 'like' }"
+              @click="emit('feedback', msg.id, 'like')"
+              title="有帮助"
+            >👍</button>
+            <button
+              class="fb-btn"
+              :class="{ active: msg.feedback === 'dislike' }"
+              @click="emit('feedback', msg.id, 'dislike')"
+              title="没帮助"
+            >👎</button>
           </div>
         </div>
       </div>
@@ -547,6 +563,27 @@ function thinkingSummary(msg) {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ---- 反馈按钮 ---- */
+.feedback-row {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.fb-btn {
+  font-size: 14px;
+  padding: 2px 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.4;
+  transition: opacity 0.2s, transform 0.15s;
+  border-radius: 4px;
+}
+
+.fb-btn:hover { opacity: 0.85; transform: scale(1.15); }
+.fb-btn.active { opacity: 1; }
 
 /* ---- 输入区域 ---- */
 

@@ -49,6 +49,10 @@ public class ConversationService {
         conversationRepository.deleteById(id);
     }
 
+    public void rename(String id, String title) {
+        conversationRepository.rename(id, title);
+    }
+
     public void touchAfterMessage(String id, String lastMessage) {
         conversationRepository.updateAfterMessage(id, lastMessage, LocalDateTime.now());
     }

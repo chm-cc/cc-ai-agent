@@ -34,11 +34,16 @@ public class MessageService {
         return messageRepository.countByConversation(conversationId);
     }
 
+    public void updateFeedback(Long msgId, String feedback) {
+        messageRepository.updateFeedback(msgId, feedback);
+    }
+
     private MessageVO toVO(Message m) {
         MessageVO vo = new MessageVO();
         vo.setId(m.getId());
         vo.setRole(m.getRole());
         vo.setContent(m.getContent());
+        vo.setFeedback(m.getFeedback());
         vo.setCreatedAt(m.getCreatedAt());
         return vo;
     }

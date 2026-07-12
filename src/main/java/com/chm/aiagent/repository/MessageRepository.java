@@ -21,15 +21,15 @@ public class MessageRepository {
         m.setConversationId(rs.getString("conversation_id"));
         m.setRole(rs.getString("role"));
         m.setContent(rs.getString("content"));
+        m.setFeedback(rs.getString("feedback"));
         m.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
         return m;
     };
 
-    public Message insert(Message m) {
+    public void insert(Message m) {
         jdbc.update(
             "INSERT INTO messages (conversation_id, role, content) VALUES (?,?,?)",
             m.getConversationId(), m.getRole(), m.getContent());
-        return m;
     }
 
     public List<Message> findByConversation(String conversationId, int offset, int limit) {
@@ -41,5 +41,9 @@ public class MessageRepository {
     public int countByConversation(String conversationId) {
         return jdbc.queryForObject(
             "SELECT count(*) FROM messages WHERE conversation_id = ?", Integer.class, conversationId);
+    }
+
+    public void updateFeedback(Long msgId, String feedback) {
+        jdbc.update("UPDATE messages SET feedback = ? WHERE id = ?", feedback, msgId);
     }
 }

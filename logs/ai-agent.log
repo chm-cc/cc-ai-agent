@@ -544,3 +544,197 @@ This generated password is for development use only. Your security configuration
 2026-07-12T20:22:56.953+08:00  INFO 282 --- [ai-agent] [ForkJoinPool.commonPool-worker-1] com.chm.aiagent.agent.ToolCallAgent      : 
 2026-07-12T20:22:56.956+08:00  INFO 282 --- [ai-agent] [ForkJoinPool.commonPool-worker-1] com.chm.aiagent.agent.BaseAgent          : Step 1: 思考完成 - 无需行动
 2026-07-12T20:22:56.961+08:00  INFO 282 --- [ai-agent] [http-nio-8123-exec-5] com.chm.aiagent.agent.BaseAgent          : SSE connection completed
+2026-07-12T20:28:04.423+08:00  INFO 282 --- [ai-agent] [ForkJoinPool.commonPool-worker-2] com.chm.aiagent.agent.BaseAgent          : Executing step 1/20
+2026-07-12T20:28:04.427+08:00  INFO 282 --- [ai-agent] [ForkJoinPool.commonPool-worker-2] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Request: 你好
+2026-07-12T20:28:05.646+08:00  INFO 282 --- [ai-agent] [ForkJoinPool.commonPool-worker-2] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Response: 你好！我是CcManus，一个全能型AI助手，随时准备为你提供帮助。有什么任务、问题或需求，尽管告诉我，我会尽力高效解决！😊
+2026-07-12T20:28:05.647+08:00  INFO 282 --- [ai-agent] [ForkJoinPool.commonPool-worker-2] com.chm.aiagent.agent.ToolCallAgent      : ccManus的思考：你好！我是CcManus，一个全能型AI助手，随时准备为你提供帮助。有什么任务、问题或需求，尽管告诉我，我会尽力高效解决！😊
+2026-07-12T20:28:05.647+08:00  INFO 282 --- [ai-agent] [ForkJoinPool.commonPool-worker-2] com.chm.aiagent.agent.ToolCallAgent      : ccManus选择了 0 个工具来使用
+2026-07-12T20:28:05.647+08:00  INFO 282 --- [ai-agent] [ForkJoinPool.commonPool-worker-2] com.chm.aiagent.agent.ToolCallAgent      : 
+2026-07-12T20:28:05.647+08:00  INFO 282 --- [ai-agent] [ForkJoinPool.commonPool-worker-2] com.chm.aiagent.agent.BaseAgent          : Step 1: 思考完成 - 无需行动
+2026-07-12T20:28:05.654+08:00  INFO 282 --- [ai-agent] [http-nio-8123-exec-2] com.chm.aiagent.agent.BaseAgent          : SSE connection completed
+2026-07-12T20:30:00.501+08:00  WARN 282 --- [ai-agent] [Thread-15] c.a.n.common.http.HttpClientBeanHolder   : [HttpClientBeanHolder] Start destroying common HttpClient
+2026-07-12T20:30:00.501+08:00  WARN 282 --- [ai-agent] [Thread-1] c.a.n.common.executor.ThreadPoolManager  : [ThreadPoolManager] Start destroying ThreadPool
+2026-07-12T20:30:00.502+08:00  WARN 282 --- [ai-agent] [Thread-1] c.a.n.common.executor.ThreadPoolManager  : [ThreadPoolManager] Destruction of the end
+2026-07-12T20:30:00.502+08:00  WARN 282 --- [ai-agent] [Thread-15] c.a.n.common.http.HttpClientBeanHolder   : [HttpClientBeanHolder] Destruction of the end
+2026-07-12T20:30:00.505+08:00  INFO 282 --- [ai-agent] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2026-07-12T20:30:00.512+08:00  INFO 282 --- [ai-agent] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2026-07-12T20:30:00.515+08:00  INFO 282 --- [ai-agent] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-07-12T20:30:00.516+08:00  INFO 282 --- [ai-agent] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-07-12T20:30:06.181+08:00  INFO 1263 --- [ai-agent] [main] c.a.nacos.client.logging.NacosLogging    : Nacos Logging Adapter Builder: com.alibaba.nacos.logger.adapter.logback12.LogbackNacosLoggingAdapterBuilder
+2026-07-12T20:30:06.183+08:00  INFO 1263 --- [ai-agent] [main] c.a.nacos.client.logging.NacosLogging    : Nacos Logging Adapter Builder: com.alibaba.nacos.logger.adapter.logback14.LogbackNacosLoggingAdapterBuilder
+2026-07-12T20:30:06.183+08:00  INFO 1263 --- [ai-agent] [main] c.a.nacos.client.logging.NacosLogging    : Nacos Logging Adapter: com.alibaba.nacos.logger.adapter.logback14.LogbackNacosLoggingAdapter match ch.qos.logback.classic.Logger success.
+2026-07-12T20:30:06.185+08:00  INFO 1263 --- [ai-agent] [main] c.a.nacos.client.logging.NacosLogging    : Nacos Logging Adapter Builder: com.alibaba.nacos.logger.adapter.log4j2.Log4j2NacosLoggingAdapterBuilder
+2026-07-12T20:30:06.249+08:00  INFO 1263 --- [ai-agent] [main] com.chm.aiagent.AiAgentApplication       : Starting AiAgentApplication using Java 21.0.11 with PID 1263 (/Users/ningmengjing/cc/ai-agent/target/classes started by ningmengjing in /Users/ningmengjing/cc/ai-agent)
+2026-07-12T20:30:06.249+08:00  INFO 1263 --- [ai-agent] [main] com.chm.aiagent.AiAgentApplication       : The following 1 profile is active: "prod"
+2026-07-12T20:30:06.612+08:00  WARN 1263 --- [ai-agent] [main] trationDelegate$BeanPostProcessorChecker : Bean 'com.alibaba.cloud.nacos.NacosConfigAutoConfiguration' of type [com.alibaba.cloud.nacos.NacosConfigAutoConfiguration] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). The currently created BeanPostProcessor [nacosAnnotationProcessor] is declared through a non-static factory method on that class; consider declaring it as static instead.
+2026-07-12T20:30:06.615+08:00  WARN 1263 --- [ai-agent] [main] trationDelegate$BeanPostProcessorChecker : Bean 'nacosConfigProperties' of type [com.alibaba.cloud.nacos.NacosConfigProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [nacosAnnotationProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-07-12T20:30:06.642+08:00  INFO 1263 --- [ai-agent] [main] c.a.n.p.a.s.c.ClientAuthPluginManager    : [ClientAuthPluginManager] Load ClientAuthService com.alibaba.nacos.client.auth.impl.NacosClientAuthServiceImpl success.
+2026-07-12T20:30:06.642+08:00  INFO 1263 --- [ai-agent] [main] c.a.n.p.a.s.c.ClientAuthPluginManager    : [ClientAuthPluginManager] Load ClientAuthService com.alibaba.nacos.client.auth.ram.RamClientAuthServiceImpl success.
+2026-07-12T20:30:06.643+08:00  WARN 1263 --- [ai-agent] [main] trationDelegate$BeanPostProcessorChecker : Bean 'nacosConfigManager' of type [com.alibaba.cloud.nacos.NacosConfigManager] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying). Is this bean getting eagerly injected/applied to a currently created BeanPostProcessor [nacosAnnotationProcessor]? Check the corresponding BeanPostProcessor declaration and its dependencies/advisors. If this bean does not have to be post-processed, declare it with ROLE_INFRASTRUCTURE.
+2026-07-12T20:30:06.769+08:00  INFO 1263 --- [ai-agent] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8123 (http)
+2026-07-12T20:30:06.775+08:00  INFO 1263 --- [ai-agent] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-07-12T20:30:06.776+08:00  INFO 1263 --- [ai-agent] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.55]
+2026-07-12T20:30:06.803+08:00  INFO 1263 --- [ai-agent] [main] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring embedded WebApplicationContext
+2026-07-12T20:30:06.803+08:00  INFO 1263 --- [ai-agent] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 542 ms
+2026-07-12T20:30:23.111+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 4a5465c3-55be-4326-b94c-582ef5c2128e
+2026-07-12T20:30:23.240+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 0c7c3165-f527-4dc2-b7e2-6610905ec37a
+2026-07-12T20:30:23.353+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = f87bf731-dc1d-4f4e-848e-6d07b9084da1
+2026-07-12T20:30:23.454+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 13632c32-a3e3-45be-8276-91e8177fa2d0
+2026-07-12T20:30:23.575+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = c9bd135d-ca8a-46cf-bec8-ff04d2917103
+2026-07-12T20:30:23.686+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = bfba0f5f-de1c-4c7d-8226-4b9290cbf87a
+2026-07-12T20:30:23.816+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 436d7a19-576e-4fe6-aba8-66d3222f633f
+2026-07-12T20:30:23.967+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 91a71e77-4290-4334-86aa-06c4387519c9
+2026-07-12T20:30:24.062+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 7bd1cecd-380f-4029-a2cd-d2ff669677f5
+2026-07-12T20:30:24.162+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 5b5f1a1a-8a6a-4bfd-aa7b-74b47a06d2e9
+2026-07-12T20:30:24.289+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = b00fd521-dc55-483b-ad24-4ec63f6f2ba3
+2026-07-12T20:30:24.399+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = c2edc9d9-de4b-4e49-8594-3c6be3d531e7
+2026-07-12T20:30:24.514+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 71fd765b-cd0f-4c29-b69b-5c48ddbdc6c3
+2026-07-12T20:30:24.660+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 3230edf1-81f8-46ad-b4b7-c63bdfc92560
+2026-07-12T20:30:24.771+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 82b25573-8d9b-44f9-a582-76b071f04b64
+2026-07-12T20:30:24.861+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = 18f7fa12-0e96-45ed-9474-b7ff0c8eb509
+2026-07-12T20:30:25.090+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = e53e57d0-0ef7-44f7-9a34-f4b92073f6a9
+2026-07-12T20:30:25.218+08:00  INFO 1263 --- [ai-agent] [main] o.s.ai.vectorstore.SimpleVectorStore     : Calling EmbeddingModel for document id = c9b22c48-2f1e-47c2-b533-5c39baa38ba7
+2026-07-12T20:30:25.388+08:00  INFO 1263 --- [ai-agent] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-07-12T20:30:25.429+08:00  INFO 1263 --- [ai-agent] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6e3b3ec8
+2026-07-12T20:30:25.430+08:00  INFO 1263 --- [ai-agent] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-07-12T20:30:25.526+08:00  WARN 1263 --- [ai-agent] [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 6d809cb6-c18f-4aaa-a967-31d5a2e94142
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-07-12T20:30:25.528+08:00  INFO 1263 --- [ai-agent] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-07-12T20:30:25.563+08:00  INFO 1263 --- [ai-agent] [main] o.s.v.b.OptionalValidatorFactoryBean     : Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
+2026-07-12T20:30:25.638+08:00  INFO 1263 --- [ai-agent] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8123 (http) with context path '/api'
+2026-07-12T20:30:25.643+08:00  INFO 1263 --- [ai-agent] [main] com.chm.aiagent.AiAgentApplication       : Started AiAgentApplication in 19.614 seconds (process running for 19.742)
+2026-07-12T20:30:26.488+08:00  INFO 1263 --- [ai-agent] [http-nio-8123-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/api]    : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-07-12T20:30:26.489+08:00  INFO 1263 --- [ai-agent] [http-nio-8123-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-07-12T20:30:26.489+08:00  INFO 1263 --- [ai-agent] [http-nio-8123-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-07-12T20:32:00.147+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 你好
+2026-07-12T20:32:00.148+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 你好
+2026-07-12T20:32:00.149+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ，CC
+2026-07-12T20:32:00.149+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ，CC
+2026-07-12T20:32:00.222+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ！👋 很高兴认识
+2026-07-12T20:32:00.223+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ！👋 很高兴认识
+2026-07-12T20:32:00.285+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 你～  
+作为你的
+2026-07-12T20:32:00.286+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 你～  
+作为你的
+2026-07-12T20:32:00.327+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 汽车选购顾问，我会
+2026-07-12T20:32:00.328+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 汽车选购顾问，我会
+2026-07-12T20:32:00.418+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 用专业但不枯燥
+2026-07-12T20:32:00.418+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 用专业但不枯燥
+2026-07-12T20:32:00.503+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 的方式，帮你理清选
+2026-07-12T20:32:00.504+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 的方式，帮你理清选
+2026-07-12T20:32:00.562+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 车思路、避开常见
+2026-07-12T20:32:00.563+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 车思路、避开常见
+2026-07-12T20:32:00.640+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 坑点。
+
+不过目前
+2026-07-12T20:32:00.641+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 坑点。
+
+不过目前
+2026-07-12T20:32:00.828+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 我还不太了解你的
+2026-07-12T20:32:00.828+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 我还不太了解你的
+2026-07-12T20:32:00.830+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 具体需求 😊  
+为了
+2026-07-12T20:32:00.831+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 具体需求 😊  
+为了
+2026-07-12T20:32:00.901+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 给你更精准、实用
+2026-07-12T20:32:00.902+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 给你更精准、实用
+2026-07-12T20:32:00.952+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 的建议，想先
+2026-07-12T20:32:00.953+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 的建议，想先
+2026-07-12T20:32:01.029+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 问问你几个小问题：
+
+1
+2026-07-12T20:32:01.030+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 问问你几个小问题：
+
+1
+2026-07-12T20:32:01.153+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ️⃣ **预算
+2026-07-12T20:32:01.154+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ️⃣ **预算
+2026-07-12T20:32:01.222+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 范围**：裸车价
+2026-07-12T20:32:01.223+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 范围**：裸车价
+2026-07-12T20:32:01.312+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 大概打算花多少？（比如
+2026-07-12T20:32:01.312+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 大概打算花多少？（比如
+2026-07-12T20:32:01.445+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 10万以内 /
+2026-07-12T20:32:01.445+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 10万以内 /
+2026-07-12T20:32:01.491+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response:  15–20万
+2026-07-12T20:32:01.492+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response:  15–20万
+2026-07-12T20:32:01.596+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response:  / 25万以上）
+2026-07-12T20:32:01.597+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response:  / 25万以上）
+2026-07-12T20:32:01.723+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response:   
+2️
+2026-07-12T20:32:01.724+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response:   
+2️
+2026-07-12T20:32:01.781+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ⃣ **主要用途**：
+2026-07-12T20:32:01.781+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ⃣ **主要用途**：
+2026-07-12T20:32:01.894+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 日常通勤？家庭出行？
+2026-07-12T20:32:01.894+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 日常通勤？家庭出行？
+2026-07-12T20:32:01.971+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 长途自驾？还是有
+2026-07-12T20:32:01.972+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 长途自驾？还是有
+2026-07-12T20:32:02.047+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 接送孩子、载货等特殊
+2026-07-12T20:32:02.047+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 接送孩子、载货等特殊
+2026-07-12T20:32:02.170+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 需求？  
+3️
+2026-07-12T20:32:02.171+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 需求？  
+3️
+2026-07-12T20:32:02.241+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ⃣ **偏好类型
+2026-07-12T20:32:02.241+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ⃣ **偏好类型
+2026-07-12T20:32:02.315+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: **：倾向燃油车
+2026-07-12T20:32:02.315+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: **：倾向燃油车
+2026-07-12T20:32:02.421+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 、插电混动（P
+2026-07-12T20:32:02.421+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 、插电混动（P
+2026-07-12T20:32:02.497+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: HEV）、纯电（BE
+2026-07-12T20:32:02.498+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: HEV）、纯电（BE
+2026-07-12T20:32:02.601+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: V）还是增程式
+2026-07-12T20:32:02.602+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: V）还是增程式
+2026-07-12T20:32:02.700+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ？喜欢轿车、SUV，
+2026-07-12T20:32:02.700+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ？喜欢轿车、SUV，
+2026-07-12T20:32:02.787+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 还是MPV？  
+4
+2026-07-12T20:32:02.787+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 还是MPV？  
+4
+2026-07-12T20:32:02.872+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ️⃣ **特别
+2026-07-12T20:32:02.872+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ️⃣ **特别
+2026-07-12T20:32:02.986+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 关注点**：比如智能
+2026-07-12T20:32:02.986+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 关注点**：比如智能
+2026-07-12T20:32:03.059+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 驾驶辅助（如NO
+2026-07-12T20:32:03.059+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 驾驶辅助（如NO
+2026-07-12T20:32:03.126+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: A）、空间大小、
+2026-07-12T20:32:03.127+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: A）、空间大小、
+2026-07-12T20:32:03.223+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 油耗/电耗、
+2026-07-12T20:32:03.224+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 油耗/电耗、
+2026-07-12T20:32:03.277+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 品牌口碑、售后便利性、
+2026-07-12T20:32:03.278+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 品牌口碑、售后便利性、
+2026-07-12T20:32:03.391+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 保值率，或者
+2026-07-12T20:32:03.391+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 保值率，或者
+2026-07-12T20:32:03.480+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 有无新能源牌照需求
+2026-07-12T20:32:03.481+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 有无新能源牌照需求
+2026-07-12T20:32:03.537+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ？
+
+你可以一条条告诉我
+2026-07-12T20:32:03.537+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ？
+
+你可以一条条告诉我
+2026-07-12T20:32:03.635+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ，也可以简单说说
+2026-07-12T20:32:03.635+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: ，也可以简单说说
+2026-07-12T20:32:03.684+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: “最近在看哪几
+2026-07-12T20:32:03.684+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: “最近在看哪几
+2026-07-12T20:32:03.772+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 款车”，我来帮你
+2026-07-12T20:32:03.772+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 款车”，我来帮你
+2026-07-12T20:32:03.885+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 横向对比、分析真实表现
+2026-07-12T20:32:03.885+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 横向对比、分析真实表现
+2026-07-12T20:32:03.951+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response:  👇  
+期待为你
+2026-07-12T20:32:03.952+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response:  👇  
+期待为你
+2026-07-12T20:32:04.027+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 省心又靠谱地
+2026-07-12T20:32:04.028+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 省心又靠谱地
+2026-07-12T20:32:04.121+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 选到那台「
+2026-07-12T20:32:04.121+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 选到那台「
+2026-07-12T20:32:04.181+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 刚刚好」的车
+2026-07-12T20:32:04.182+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 刚刚好」的车
+2026-07-12T20:32:04.281+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response:  🚗✨
+2026-07-12T20:32:04.281+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response:  🚗✨
+2026-07-12T20:32:04.304+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 
+2026-07-12T20:32:04.304+08:00  INFO 1263 --- [ai-agent] [boundedElastic-1] c.chm.aiagent.advisor.MyLoggerAdvisor    : AI Stream Response: 
