@@ -1,3 +1,21 @@
+CREATE TABLE IF NOT EXISTS agents (
+    id            VARCHAR(64)   PRIMARY KEY,
+    name          VARCHAR(100)  NOT NULL,
+    description   VARCHAR(500),
+    icon          VARCHAR(10)   DEFAULT '🤖',
+    category      VARCHAR(32)   DEFAULT 'general',
+    tags          TEXT,
+    system_prompt TEXT,
+    model         VARCHAR(64)   DEFAULT '',
+    temperature   DOUBLE PRECISION DEFAULT 0.7,
+    max_tokens    INT           DEFAULT 2000,
+    tools         TEXT,
+    status        VARCHAR(16)   DEFAULT 'ACTIVE',
+    sort_order    INT           DEFAULT 0,
+    created_at    TIMESTAMP     DEFAULT now(),
+    updated_at    TIMESTAMP     DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS conversations (
     id           VARCHAR(36)  PRIMARY KEY,
     agent_id     VARCHAR(64)  NOT NULL,

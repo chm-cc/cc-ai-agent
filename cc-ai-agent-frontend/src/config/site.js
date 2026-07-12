@@ -20,4 +20,14 @@ export const routeSeo = {
     description: siteConfig.description,
     keywords: siteConfig.keywords,
   },
+  Dashboard: {
+    title: '用量统计 - AI Agent 应用中心',
+    description: 'AI Agent 用量统计看板，查看会话数、消息数、每日趋势及各 Agent 用量分布。',
+    keywords: '统计,用量,看板,数据分析',
+  },
+  AgentManage: {
+    title: 'Agent 管理 - AI Agent 应用中心',
+    description: '管理 AI Agent，支持创建、编辑、启停及配置 System Prompt 与工具集。',
+    keywords: 'Agent管理,配置,System Prompt,工具配置',
+  },
 }

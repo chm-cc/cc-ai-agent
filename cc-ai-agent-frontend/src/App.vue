@@ -20,6 +20,11 @@ function handleLogout() {
   <div class="app-layout">
     <header v-if="!route.meta.hideFooter" class="app-header">
       <router-link to="/" class="logo">AI Agent</router-link>
+      <nav class="header-nav">
+        <router-link to="/" class="nav-link">首页</router-link>
+        <router-link to="/dashboard" class="nav-link">统计</router-link>
+        <router-link to="/agents" class="nav-link">管理</router-link>
+      </nav>
       <div class="header-actions">
         <template v-if="loggedIn">
           <span class="user-info">{{ username }}</span>
@@ -59,6 +64,31 @@ function handleLogout() {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  border-radius: 8px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.nav-link:hover {
+  color: #111827;
+  background: #f3f4f6;
+}
+
+.nav-link.router-link-exact-active {
+  color: #2563eb;
+  background: #eff6ff;
 }
 
 .user-info {

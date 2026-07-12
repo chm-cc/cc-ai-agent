@@ -41,6 +41,7 @@ const generatedTitles = new Set()
 
 // 进入/切换 Agent 时的初始化逻辑
 async function initAgent() {
+  if (!agentId.value) return
   const isFromHome = route.query._new === '1'
 
   try {
@@ -70,11 +71,14 @@ watch(agentId, async (newId, oldId) => {
     await cleanupEmptyConv()
     activeConvId.value = null
     messages.value = []
+    conversations.value = []
+    generatedTitles.clear()
     await initAgent()
   }
 })
 
 async function refreshConversations() {
+  if (!agentId.value) return
   try {
     const data = await fetchConversations(agentId.value)
     conversations.value = data.list || []

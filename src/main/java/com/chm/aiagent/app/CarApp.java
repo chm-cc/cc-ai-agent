@@ -1,9 +1,11 @@
 package com.chm.aiagent.app;
 
 import com.chm.aiagent.advisor.MyLoggerAdvisor;
+import com.chm.aiagent.dto.AgentVO;
 import com.chm.aiagent.model.Message;
 import com.chm.aiagent.rag.LoveAppRagCustomAdvisorFactory;
 import com.chm.aiagent.repository.MessageRepository;
+import com.chm.aiagent.service.AgentService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -31,10 +33,14 @@ public class CarApp {
     @Resource
     private MessageRepository messageRepository;
 
+    @Resource
+    private AgentService agentService;
+
     /** DB sliding window: max history messages loaded per request */
     private static final int MEMORY_WINDOW_SIZE = 20;
 
-    private static final String SYSTEM_PROMPT = """
+    /** Fallback system prompt if agent not found in DB */
+    private static final String FALLBACK_SYSTEM_PROMPT = """
             You are a senior car purchasing consultant certified by a professional automotive platform,
             focusing on providing objective, neutral, and practical car selection decision support for Chinese consumers.
             Please strictly follow the principles below:
@@ -66,13 +72,25 @@ public class CarApp {
             Always aim to "help users avoid pitfalls and save worry" with a warm, professional tone.
             """;
 
-
     public CarApp(ChatModel dashscopeChatModel) {
         this.chatModel = dashscopeChatModel;
         this.chatClient = ChatClient.builder(dashscopeChatModel)
-                .defaultSystem(SYSTEM_PROMPT)
+                .defaultSystem(FALLBACK_SYSTEM_PROMPT)
                 .defaultAdvisors(new MyLoggerAdvisor())
                 .build();
+    }
+
+    /** 从 agents 表读取 car-advisor 的 System Prompt */
+    private String getSystemPrompt() {
+        try {
+            AgentVO agent = agentService.getById("car-advisor");
+            if (agent != null && agent.getSystemPrompt() != null && !agent.getSystemPrompt().isBlank()) {
+                return agent.getSystemPrompt();
+            }
+        } catch (Exception e) {
+            log.warn("Failed to load car-advisor system prompt from DB, using fallback", e);
+        }
+        return FALLBACK_SYSTEM_PROMPT;
     }
 
     /**
@@ -91,7 +109,6 @@ public class CarApp {
                 new org.springframework.ai.chat.prompt.Prompt(new org.springframework.ai.chat.messages.UserMessage(prompt));
             var response = chatModel.call(aiPrompt);
             String title = response.getResult().getOutput().getText().trim();
-            // 清理可能的引号包裹
             title = title.replaceAll("^[\"'「]|[\"'」]$", "").trim();
             return title.length() > 20 ? title.substring(0, 20) : title;
         } catch (Exception e) {
@@ -102,17 +119,15 @@ public class CarApp {
 
     /**
      * Build LLM context by loading recent N messages from DB (sliding window).
-     * The current user message is already saved to DB by ConversationController,
-     * so we skip it in history to avoid duplication and add it as the final message.
      */
     private List<org.springframework.ai.chat.messages.Message> buildContext(String conversationId, String currentMessage) {
         List<Message> history = messageRepository.findRecentByConversation(conversationId, MEMORY_WINDOW_SIZE);
 
+        String systemPrompt = getSystemPrompt();
         List<org.springframework.ai.chat.messages.Message> messages = new ArrayList<>();
-        messages.add(new org.springframework.ai.chat.messages.SystemMessage(SYSTEM_PROMPT));
+        messages.add(new org.springframework.ai.chat.messages.SystemMessage(systemPrompt));
 
         for (Message m : history) {
-            // Skip the current user message (already saved by controller) to avoid duplication
             if ("USER".equals(m.getRole()) && m.getContent().equals(currentMessage)) {
                 continue;
             }
@@ -123,14 +138,10 @@ public class CarApp {
             }
         }
 
-        // Append current user message as the final prompt
         messages.add(new org.springframework.ai.chat.messages.UserMessage(currentMessage));
         return messages;
     }
 
-    /**
-     * Basic chat with DB sliding window memory.
-     */
     public String doChat(String message, String chatId) {
         List<org.springframework.ai.chat.messages.Message> context = buildContext(chatId, message);
         ChatResponse chatResponse = chatClient
@@ -187,7 +198,7 @@ public class CarApp {
     }
 
     // ============================================================
-    // Legacy methods (not currently used by ChatRouterService)
+    // Legacy methods
     // ============================================================
 
     record LoveReport(String title, List<String> suggestions) {}
@@ -195,7 +206,7 @@ public class CarApp {
     public LoveReport doChatWithReport(String message, String chatId) {
         LoveReport loveReport = chatClient
                 .prompt()
-                .system(SYSTEM_PROMPT)
+                .system(getSystemPrompt())
                 .user(message)
                 .call()
                 .entity(LoveReport.class);

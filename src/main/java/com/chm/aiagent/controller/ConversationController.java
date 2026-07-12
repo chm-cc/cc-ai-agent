@@ -38,7 +38,7 @@ public class ConversationController {
 
     @GetMapping
     public Result<Map<String, Object>> list(
-            @RequestParam(required = false) String agentId,
+            @RequestParam String agentId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
         String userId = currentUserId();

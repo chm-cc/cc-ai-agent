@@ -113,9 +113,8 @@ export async function createConversation(agentId, title) {
  * 获取会话列表
  */
 export async function fetchConversations(agentId, page = 1, size = 20) {
-  const params = { page, size }
-  if (agentId) params.agentId = agentId
-  const res = await request.get('/v1/conversations', { params })
+  if (!agentId) return { list: [], total: 0 }
+  const res = await request.get('/v1/conversations', { params: { agentId, page, size } })
   return res.data.data
 }
 

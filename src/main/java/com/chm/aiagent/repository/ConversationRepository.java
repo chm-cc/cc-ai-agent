@@ -44,24 +44,15 @@ public class ConversationRepository {
     }
 
     public List<Conversation> findByUser(String userId, String agentId, int offset, int limit) {
-        if (agentId != null && !agentId.isEmpty()) {
-            return jdbc.query(
-                "SELECT * FROM conversations WHERE user_id = ? AND agent_id = ? ORDER BY updated_at DESC LIMIT ? OFFSET ?",
-                rowMapper, userId, agentId, limit, offset);
-        }
         return jdbc.query(
-            "SELECT * FROM conversations WHERE user_id = ? ORDER BY updated_at DESC LIMIT ? OFFSET ?",
-            rowMapper, userId, limit, offset);
+            "SELECT * FROM conversations WHERE user_id = ? AND agent_id = ? ORDER BY updated_at DESC LIMIT ? OFFSET ?",
+            rowMapper, userId, agentId, limit, offset);
     }
 
     public int countByUser(String userId, String agentId) {
-        if (agentId != null && !agentId.isEmpty()) {
-            return jdbc.queryForObject(
-                "SELECT count(*) FROM conversations WHERE user_id = ? AND agent_id = ?",
-                Integer.class, userId, agentId);
-        }
         return jdbc.queryForObject(
-            "SELECT count(*) FROM conversations WHERE user_id = ?", Integer.class, userId);
+            "SELECT count(*) FROM conversations WHERE user_id = ? AND agent_id = ?",
+            Integer.class, userId, agentId);
     }
 
     public void updateAfterMessage(String id, String lastMessage, LocalDateTime updatedAt) {

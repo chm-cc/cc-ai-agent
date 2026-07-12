@@ -35,6 +35,18 @@ const routes = [
     meta: { seo: { title: 'AI 对话' }, hideFooter: true, requiresAuth: true },
   },
   {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: () => import('../views/Dashboard.vue'),
+    meta: { seo: routeSeo.Dashboard, requiresAuth: true },
+  },
+  {
+    path: '/agents',
+    name: 'AgentManage',
+    component: () => import('../views/AgentManage.vue'),
+    meta: { seo: routeSeo.AgentManage, requiresAuth: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },

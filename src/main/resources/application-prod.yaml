@@ -3,11 +3,11 @@ spring:
     name: ai-agent
   ai:
     dashscope:
-      api-key: ${DASHSCOPE_API_KEY:sk-ws-H.EMXYLXP.Hz1l.MEUCIEXvuS_rqgPHG6EbISdbH4j6ZaaNc-h_houMH5txTWfkAiEA_mypnIvwCKOpIqM8DKnWeilO65pv5MWZ6e1MALFNrEg}
-#    ollama:
-#      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
-#      chat:
-#        model: ${OLLAMA_MODEL:qwen2.5:7b}
+      api-key: ${DASHSCOPE_API_KEY:sk-ws-H.EDMLPIP.zyu8.MEQCIA8MM1mqjSUtiofrUE5CDL1USoy0NPIF7eY0952OyyhKAiATG1J-Nlsr0DDzt1j1qaIOPKZI-f8eU6SpXNK5PDnn7w}
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat:
+        model: ${OLLAMA_MODEL:qwen2.5:7b}
 #    url: ${DB_URL}
 #    username: ${DB_USERNAME}
 #    password: ${DB_PASSWORD}
