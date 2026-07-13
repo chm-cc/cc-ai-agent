@@ -196,8 +196,9 @@ public class ToolFallbackHandler {
     public boolean isFailure(String toolResponse) {
         if (StrUtil.isBlank(toolResponse)) return false;
 
+        String lower = toolResponse.toLowerCase();
         for (String pattern : FAILURE_PATTERNS) {
-            if (toolResponse.contains(pattern)) {
+            if (lower.contains(pattern.toLowerCase())) {
                 return true;
             }
         }

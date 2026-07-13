@@ -15,7 +15,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Identity
 
-AI Agent 应用中心 — Spring Boot 3.5 + Vue 3 monorepo，基于 DashScope 大模型的智能对话平台。当前线上运行「AI 选车大师」和「AI 超级智能体」两个 Agent，支持 SSE 流式对话、RAG 知识库检索、ReAct 工具调用。
+AI Agent 应用中心 — Spring Boot 3.5 + Vue 3 monorepo，基于 **Ollama**（qwen2.5:7b）本地大模型的智能对话平台。运行「AI 选车大师」和「AI 超级智能体」两个 Agent，支持 SSE 流式对话、RAG 知识库检索（pgvector）、ReAct 工具调用及五层失败兜底。
+
+### 当前开发进度
+
+| 阶段 | 状态 | 内容 |
+|------|------|------|
+| 一期 | ✅ 完成 | 项目骨架、两个 Agent、SSE 流式、8 个工具、ReAct 循环 |
+| 二期 | ✅ 完成 | 五层工具失败兜底、熔断降级、README.md |
+| **三期** | ✅ 刚完成 | 103 个单元测试、对话记忆 DB 持久化、pgvector 向量存储、JWT 安全加固 |
+| 四期 | 📋 待开始 | Agent 配置落盘、对话历史深度集成、前端体验优化（暗色/移动端） |
+
+### 三期关键变更（2026-07-13）
+
+- **测试**：`src/test/java/.../fallback/` 下 4 个测试类，103 个用例，`mvn test` 全绿
+- **记忆持久化**：`ChatRouterService.loadConversationHistory()` 每次请求从 DB 加载最近 20 条消息到 CcManus
+- **pgvector**：`LoveAppVectorStoreConfig` 改为 PgVectorStore，需 `ollama pull nomic-embed-text`
+- **安全**：`SecurityConfig` 启用 JWT 认证拦截（不再 permitAll），`users` 表 + BCrypt 密码，默认 admin/admin123
+- **已知限制**：无（pgvector 0.8.5 已源码编译安装到 brew postgresql@16）
 
 ---
 

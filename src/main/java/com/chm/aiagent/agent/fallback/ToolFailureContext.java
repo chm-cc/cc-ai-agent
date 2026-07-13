@@ -48,6 +48,14 @@ public class ToolFailureContext {
 
         String lower = toolResponse.toLowerCase();
 
+        // 服务端错误（优先于 timeout 检测，避免 "504 Gateway Timeout" 被误判为 NET_TIMEOUT）
+        if (lower.contains("502") || lower.contains("503") || lower.contains("504")) {
+            return "SVR_" + (lower.contains("502") ? "502" : lower.contains("503") ? "503" : "504");
+        }
+        if (lower.matches(".*\\b500\\b.*") || lower.contains("internal server error")) {
+            return "SVR_500";
+        }
+
         // 网络/超时
         if (lower.contains("timeout") || lower.contains("timed out")
                 || lower.contains("connect") && (lower.contains("refused") || lower.contains("reset"))) {
@@ -56,14 +64,6 @@ public class ToolFailureContext {
         if (lower.contains("unreachable") || lower.contains("host")
                 || lower.contains("dns") || lower.contains("unknownhost")) {
             return "NET_UNREACHABLE";
-        }
-
-        // 服务端错误
-        if (lower.contains("502") || lower.contains("503") || lower.contains("504")) {
-            return "SVR_" + (lower.contains("502") ? "502" : lower.contains("503") ? "503" : "504");
-        }
-        if (lower.contains("500") || lower.contains("internal server error")) {
-            return "SVR_500";
         }
 
         // 参数错误

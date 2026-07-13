@@ -1,3 +1,6 @@
+-- pgvector 扩展（brew install pgvector + 源码编译）
+CREATE EXTENSION IF NOT EXISTS vector;
+
 CREATE TABLE IF NOT EXISTS agents (
     id            VARCHAR(64)   PRIMARY KEY,
     name          VARCHAR(100)  NOT NULL,
@@ -41,3 +44,13 @@ CREATE INDEX IF NOT EXISTS idx_msg_conv ON messages(conversation_id, created_at)
 
 -- 兼容已有数据库，补充 feedback 列
 ALTER TABLE messages ADD COLUMN IF NOT EXISTS feedback VARCHAR(16);
+
+CREATE TABLE IF NOT EXISTS users (
+    id          VARCHAR(64)   PRIMARY KEY,
+    username    VARCHAR(64)   NOT NULL UNIQUE,
+    password    VARCHAR(256)  NOT NULL,
+    role        VARCHAR(16)   DEFAULT 'USER',
+    enabled     BOOLEAN       DEFAULT true,
+    created_at  TIMESTAMP     DEFAULT now(),
+    updated_at  TIMESTAMP     DEFAULT now()
+);

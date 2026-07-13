@@ -215,7 +215,7 @@ public class CarApp {
         return loveReport;
     }
 
-    // TODO: 启用 RAG 时取消注释 LoveAppVectorStoreConfig / PgVectorVectorStoreConfig 的 @Configuration
+    // RAG 模式：loveAppVectorStore 由 LoveAppVectorStoreConfig 提供（pgvector 持久化）
     @Autowired(required = false)
     private VectorStore loveAppVectorStore;
 
@@ -227,7 +227,7 @@ public class CarApp {
 
     public String doChatWithRag(String message, String chatId) {
         if (loveAppVectorStore == null) {
-            log.warn("RAG 模式不可用：VectorStore Bean 未注册（LoveAppVectorStoreConfig 的 @Configuration 已注释），回退到普通对话");
+            log.warn("RAG 模式不可用：EmbeddingModel Bean 未注册（请检查 spring.ai.ollama.embedding.model 配置及 nomic-embed-text 模型是否已拉取），回退到普通对话");
             return doChat(message, chatId);
         }
         ChatResponse chatResponse = chatClient
