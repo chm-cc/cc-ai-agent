@@ -66,7 +66,7 @@ public class AgentController {
     public Result<Void> delete(@PathVariable String agentId) {
         boolean deleted = agentService.delete(agentId);
         if (!deleted) {
-            return Result.fail(10001, "无法删除该 Agent（car-advisor 为系统保留 Agent）");
+            return Result.fail(10001, "无法删除该 Agent（car-advisor 和 super-agent 为系统保留 Agent）");
         }
         return Result.ok();
     }

@@ -45,9 +45,36 @@ const deleteDialog = ref({
 const availableTools = [
   'WebSearch', 'WebScraping', 'PDFGeneration',
   'FileOperation', 'TerminalOperation', 'ResourceDownload', 'Terminate',
+  'Weather',
 ]
 
-// 分类选项
+// 图标选项
+const iconCategories = [
+  {
+    name: 'AI & 智能',
+    icons: ['🤖', '🧠', '💬', '🗣️', '👁️', '🦾', '🦿', '🎯', '💡', '✨', '⚡', '🔮'],
+  },
+  {
+    name: '办公 & 效率',
+    icons: ['📊', '📈', '📋', '📝', '📎', '📌', '🗂️', '📅', '⏰', '📧', '📬', '✅'],
+  },
+  {
+    name: '技术 & 工具',
+    icons: ['💻', '🖥️', '⌨️', '🔧', '⚙️', '🛠️', '📡', '🔌', '🧮', '🔐', '🛡️', '🗜️'],
+  },
+  {
+    name: '行业 & 场景',
+    icons: ['🏥', '🎓', '💰', '🛒', '✈️', '🚗', '🏠', '🎮', '🎵', '📸', '🌐', '🔬'],
+  },
+  {
+    name: '经典表情',
+    icons: ['😊', '🌟', '🔥', '💪', '🏆', '🎉', '💎', '🎁', '☕', '🍀', '🌈', '❤️'],
+  },
+]
+
+function selectIcon(icon) {
+  form.icon = icon
+}
 const categories = [
   { value: 'advisor', label: '顾问型' },
   { value: 'productivity', label: '生产力' },
@@ -245,8 +272,8 @@ onMounted(load)
               <button
                 class="btn-sm btn-danger"
                 @click="confirmDeleteAgent(a)"
-                :disabled="a.id === 'car-advisor'"
-                :title="a.id === 'car-advisor' ? '系统保留 Agent，不可删除' : ''"
+                :disabled="a.id === 'car-advisor' || a.id === 'super-agent'"
+                :title="a.id === 'car-advisor' || a.id === 'super-agent' ? '系统保留 Agent，不可删除' : ''"
               >删除</button>
             </td>
           </tr>
@@ -277,17 +304,11 @@ onMounted(load)
           </div>
           <div class="form-row form-row-2col">
             <div>
-              <label class="form-label">图标</label>
-              <input v-model="form.icon" class="form-input" placeholder="🤖" maxlength="2" />
-            </div>
-            <div>
               <label class="form-label">分类</label>
               <select v-model="form.category" class="form-input">
                 <option v-for="c in categories" :key="c.value" :value="c.value">{{ c.label }}</option>
               </select>
             </div>
-          </div>
-          <div class="form-row form-row-2col">
             <div>
               <label class="form-label">状态</label>
               <select v-model="form.status" class="form-input">
@@ -295,10 +316,37 @@ onMounted(load)
                 <option value="INACTIVE">停用</option>
               </select>
             </div>
-            <div>
-              <label class="form-label">排序</label>
-              <input v-model.number="form.sortOrder" type="number" class="form-input" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">图标</label>
+            <div class="icon-picker">
+              <div class="icon-preview">
+                <span class="icon-preview-emoji">{{ form.icon || '🤖' }}</span>
+                <input
+                  v-model="form.icon"
+                  class="form-input icon-input"
+                  placeholder="或直接输入 emoji"
+                  maxlength="2"
+                />
+              </div>
+              <div v-for="cat in iconCategories" :key="cat.name" class="icon-cat">
+                <p class="icon-cat-name">{{ cat.name }}</p>
+                <div class="icon-grid">
+                  <button
+                    v-for="icon in cat.icons"
+                    :key="icon"
+                    class="icon-btn"
+                    :class="{ selected: form.icon === icon }"
+                    :title="icon"
+                    @click="selectIcon(icon)"
+                  >{{ icon }}</button>
+                </div>
+              </div>
             </div>
+          </div>
+          <div class="form-row">
+            <label class="form-label">排序</label>
+            <input v-model.number="form.sortOrder" type="number" class="form-input" />
           </div>
           <div class="form-row">
             <label class="form-label">标签</label>
@@ -652,6 +700,80 @@ onMounted(load)
   font-size: 13px;
   color: #374151;
   cursor: pointer;
+}
+
+/* ====== 图标选择器 ====== */
+.icon-picker {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.icon-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.icon-preview-emoji {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.icon-input {
+  flex: 1;
+}
+
+.icon-cat {
+  margin-bottom: 8px;
+}
+
+.icon-cat:last-child { margin-bottom: 0; }
+
+.icon-cat-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 6px 0;
+}
+
+.icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: #f9fafb;
+  cursor: pointer;
+  transition: all 0.15s;
+  padding: 0;
+  line-height: 1;
+}
+
+.icon-btn:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  transform: scale(1.15);
+}
+
+.icon-btn.selected {
+  background: #dbeafe;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
 }
 
 @media (max-width: 768px) {

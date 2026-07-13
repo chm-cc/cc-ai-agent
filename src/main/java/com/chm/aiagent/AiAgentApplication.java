@@ -1,10 +1,14 @@
 package com.chm.aiagent;
 
+import com.alibaba.cloud.ai.autoconfigure.dashscope.DashScopeAutoConfiguration;
 import org.springframework.ai.autoconfigure.vectorstore.pgvector.PgVectorStoreAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(exclude = PgVectorStoreAutoConfiguration.class)
+@SpringBootApplication(exclude = {
+    PgVectorStoreAutoConfiguration.class,
+    DashScopeAutoConfiguration.class
+})
 public class AiAgentApplication {
 
     public static void main(String[] args) {

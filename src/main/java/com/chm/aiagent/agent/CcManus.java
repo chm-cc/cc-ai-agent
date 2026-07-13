@@ -1,6 +1,8 @@
 package com.chm.aiagent.agent;
 
 import com.chm.aiagent.advisor.MyLoggerAdvisor;
+import com.chm.aiagent.agent.fallback.ToolFallbackHandler;
+import com.chm.aiagent.agent.fallback.ToolFallbackProperties;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.tool.ToolCallback;
@@ -25,8 +27,10 @@ public class CcManus extends ToolCallAgent {
             """;
 
     public CcManus(ToolCallback[] allTools,
-                   @Qualifier("dashscopeChatModel") ChatModel chatModel) {
-        super(allTools);
+                   @Qualifier("ollamaChatModel") ChatModel chatModel,
+                   ToolFallbackHandler fallbackHandler,
+                   ToolFallbackProperties fallbackProperties) {
+        super(allTools, fallbackHandler, fallbackProperties);
         this.setName("ccManus");
         this.setSystemPrompt(DEFAULT_SYSTEM_PROMPT);
         this.setNextStepPrompt(NEXT_STEP_PROMPT);

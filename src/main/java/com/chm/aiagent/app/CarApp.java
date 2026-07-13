@@ -8,6 +8,7 @@ import com.chm.aiagent.repository.MessageRepository;
 import com.chm.aiagent.service.AgentService;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.model.ChatModel;
@@ -72,9 +73,9 @@ public class CarApp {
             Always aim to "help users avoid pitfalls and save worry" with a warm, professional tone.
             """;
 
-    public CarApp(ChatModel dashscopeChatModel) {
-        this.chatModel = dashscopeChatModel;
-        this.chatClient = ChatClient.builder(dashscopeChatModel)
+    public CarApp(ChatModel ollamaChatModel) {
+        this.chatModel = ollamaChatModel;
+        this.chatClient = ChatClient.builder(ollamaChatModel)
                 .defaultSystem(FALLBACK_SYSTEM_PROMPT)
                 .defaultAdvisors(new MyLoggerAdvisor())
                 .build();
@@ -214,16 +215,21 @@ public class CarApp {
         return loveReport;
     }
 
-    @Resource
+    // TODO: 启用 RAG 时取消注释 LoveAppVectorStoreConfig / PgVectorVectorStoreConfig 的 @Configuration
+    @Autowired(required = false)
     private VectorStore loveAppVectorStore;
 
-    @Resource
+    @Autowired(required = false)
     private Advisor loveAppRagCloudAdvisor;
 
-    @Resource
+    @Autowired(required = false)
     private VectorStore pgVectorVectorStore;
 
     public String doChatWithRag(String message, String chatId) {
+        if (loveAppVectorStore == null) {
+            log.warn("RAG 模式不可用：VectorStore Bean 未注册（LoveAppVectorStoreConfig 的 @Configuration 已注释），回退到普通对话");
+            return doChat(message, chatId);
+        }
         ChatResponse chatResponse = chatClient
                 .prompt()
                 .user(message)

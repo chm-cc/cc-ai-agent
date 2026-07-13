@@ -13,7 +13,7 @@ const currentYear = computed(() => new Date().getFullYear())
       </p>
       <span class="sep" v-if="siteConfig.wechat">·</span>
       <p v-if="siteConfig.wechat" class="wechat">
-        微信号：{{ siteConfig.wechat }}
+        联系作者：{{ siteConfig.wechat }}
       </p>
       <span class="sep" v-if="siteConfig.icpNumber">·</span>
       <p v-if="siteConfig.icpNumber" class="icp">

@@ -2,13 +2,13 @@ spring:
   profiles:
     active: prod
   ai:
-    dashscope:
-      api-key: ${DASHSCOPE_API_KEY:}
-    vectorstore:
-      pgvector:
-        index-type: HNSW
-        distance-type: COSINE_DISTANCE
-        max-document-batch-size: 10000
+#    dashscope:
+#      api-key: ${DASHSCOPE_API_KEY:}
+#    vectorstore:
+#      pgvector:
+#        index-type: HNSW
+#        distance-type: COSINE_DISTANCE
+#        max-document-batch-size: 10000
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/yu_ai_agent}
     username: ${DB_USERNAME:aiagent}
@@ -25,6 +25,35 @@ app:
   jwt:
     secret: ${JWT_SECRET:ai-agent-jwt-secret-key-change-in-production-256bit}
     expiration: ${JWT_EXPIRATION:86400000}
+
+# ========== Agent 工具调用失败兜底配置 ==========
+# 能力域映射默认通过 CapabilityDomain 枚举定义，以下为可覆盖参数
+agent:
+  tool-fallback:
+    # LLM 调用重试（第 1 层防护）
+    llm:
+      max-retries: 3
+      backoff-ms: [1000, 2000, 4000]
+      retryable-exceptions:
+        - java.io.IOException
+        - java.net.SocketTimeoutException
+        - java.util.concurrent.TimeoutException
+
+    # 工具执行重试（第 2 层防护）
+    tool:
+      max-retries: 2
+      backoff-multiplier: 2
+      timeout-seconds: 15
+
+    # 降级控制（第 3-4 层防护）
+    degradation:
+      max-rounds: 2
+      same-domain-only: true
+
+    # 熔断控制
+    circuit-breaker:
+      failure-threshold: 3
+      scope: conversation
 
 agents:
   - id: car-advisor

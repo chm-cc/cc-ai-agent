@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 public class DashScopeAI implements CommandLineRunner {
 
     @Resource
-    private ChatModel dashscopeChatModel;
+    private ChatModel ollamaChatModel;
 
     @Override
     public void run(String... args) throws Exception {
         AssistantMessage assistantMessage =
-                dashscopeChatModel.call(new Prompt("你好，你是谁"))
+                ollamaChatModel.call(new Prompt("你好，你是谁"))
                 .getResult()
                 .getOutput();
         System.out.println(assistantMessage.getText());

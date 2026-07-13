@@ -105,9 +105,9 @@ public class AgentService {
     }
 
     public boolean delete(String id) {
-        // 保护：不允许删除 car-advisor（特殊引擎）
-        if ("car-advisor".equals(id)) {
-            log.warn("Attempt to delete protected agent: car-advisor");
+        // 保护：不允许删除系统保留 Agent
+        if ("car-advisor".equals(id) || "super-agent".equals(id)) {
+            log.warn("Attempt to delete protected agent: {}", id);
             return false;
         }
         agentRepository.deleteById(id);

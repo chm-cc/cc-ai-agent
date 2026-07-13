@@ -18,7 +18,7 @@ import java.util.List;
  * 负责读取所有 Markdown 文档并转换为 Document 列表
  */
 
-@Component
+//@Component
 @Slf4j
 public class LoveAppDocumentLoader {
 
