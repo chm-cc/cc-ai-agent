@@ -23,7 +23,7 @@ search-api:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:ai-agent-jwt-secret-key-change-in-production-256bit}
+    secret: ${JWT_SECRET:}
     expiration: ${JWT_EXPIRATION:86400000}
 
 # ========== Agent 工具调用失败兜底配置 ==========

@@ -3,7 +3,6 @@ spring:
     name: ai-agent
   ai:
 #    dashscope:
-#      api-key: ${DASHSCOPE_API_KEY:sk-ws-H.EDMLPIP.zyu8.MEQCIA8MM1mqjSUtiofrUE5CDL1USoy0NPIF7eY0952OyyhKAiATG1J-Nlsr0DDzt1j1qaIOPKZI-f8eU6SpXNK5PDnn7w}
     ollama:
       base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
       chat:
@@ -18,7 +17,7 @@ server:
     context-path: /api
 
 search-api:
-  api-key: ${SEARCH_API_KEY:cvzScJSysF6TbAv3D3j5edWs}
+  api-key: ${SEARCH_API_KEY:}
 
 app:
   download:
