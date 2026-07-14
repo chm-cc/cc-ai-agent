@@ -5,6 +5,7 @@ import com.chm.aiagent.auth.dto.LoginResponse;
 import com.chm.aiagent.auth.service.AuthService;
 import com.chm.aiagent.common.Result;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,11 @@ public class AuthController {
 
     @GetMapping("/me")
     public Result<LoginResponse> me(Authentication authentication) {
-        return Result.ok(new LoginResponse(null, authentication.getName()));
+        String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .map(a -> a.startsWith("ROLE_") ? a.substring(5) : a)
+                .orElse(null);
+        return Result.ok(new LoginResponse(null, authentication.getName(), role));
     }
 }

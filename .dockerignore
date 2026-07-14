@@ -1,10 +1,4 @@
-# Maven
-target/
-*.class
-*.jar
-*.war
-
-# IDE
+# 日志 & 临时文件
 .idea/
 .vscode/
 *.iml

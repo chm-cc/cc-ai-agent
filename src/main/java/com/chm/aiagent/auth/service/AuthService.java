@@ -38,16 +38,16 @@ public class AuthService {
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 throw new BusinessException(ErrorCode.LOGIN_FAILED);
             }
-            String token = jwtTokenProvider.generateToken(user.getUsername());
-            return new LoginResponse(token, user.getUsername());
+            String token = jwtTokenProvider.generateToken(user.getUsername(), user.getRole());
+            return new LoginResponse(token, user.getUsername(), user.getRole());
         }
 
         // 数据库无用户时的 fallback：允许初始管理员登录
         if (FALLBACK_ADMIN_USERNAME.equals(request.getUsername())
                 && FALLBACK_ADMIN_PASSWORD.equals(request.getPassword())) {
             log.warn("使用 fallback 管理员凭据登录，请尽快创建正式管理员账户");
-            String token = jwtTokenProvider.generateToken(FALLBACK_ADMIN_USERNAME);
-            return new LoginResponse(token, FALLBACK_ADMIN_USERNAME);
+            String token = jwtTokenProvider.generateToken(FALLBACK_ADMIN_USERNAME, "ADMIN");
+            return new LoginResponse(token, FALLBACK_ADMIN_USERNAME, "ADMIN");
         }
 
         throw new BusinessException(ErrorCode.LOGIN_FAILED);

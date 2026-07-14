@@ -73,9 +73,9 @@ public class CarApp {
             Always aim to "help users avoid pitfalls and save worry" with a warm, professional tone.
             """;
 
-    public CarApp(ChatModel ollamaChatModel) {
-        this.chatModel = ollamaChatModel;
-        this.chatClient = ChatClient.builder(ollamaChatModel)
+    public CarApp(ChatModel chatModel) {
+        this.chatModel = chatModel;
+        this.chatClient = ChatClient.builder(chatModel)
                 .defaultSystem(FALLBACK_SYSTEM_PROMPT)
                 .defaultAdvisors(new MyLoggerAdvisor())
                 .build();

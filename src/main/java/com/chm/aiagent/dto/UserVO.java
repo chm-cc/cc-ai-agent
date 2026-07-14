@@ -1,19 +1,13 @@
-package com.chm.aiagent.model;
+package com.chm.aiagent.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class User {
+public class UserVO {
     private String id;
     private String username;
-    private String password;
-    private String passwordView;
     private String role;
     private boolean enabled;
     private LocalDateTime createdAt;

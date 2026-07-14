@@ -6,7 +6,7 @@ export async function login(username, password) {
   if (data.code !== 0) {
     throw new Error(data.message || '登录失败')
   }
-  setAuth(data.data.token, data.data.username)
+  setAuth(data.data.token, data.data.username, data.data.role)
   return data.data
 }
 

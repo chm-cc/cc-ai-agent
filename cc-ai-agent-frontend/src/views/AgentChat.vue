@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ChatRoom from '../components/ChatRoom.vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import AgentIcon from '../components/AgentIcon.vue'
 import {
   fetchAgents,
   fetchConversations,
@@ -231,18 +232,53 @@ function formatTime(ts) {
   if (diff < 86400000) return d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
   return d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
 }
+
+// 移动端：选择会话后自动关闭侧边栏
+function handleSelectConvMobile(conv) {
+  handleSelectConv(conv)
+  sidebarOpen.value = false
+}
+
+function handleNewChatMobile() {
+  handleNewChat()
+  sidebarOpen.value = false
+}
+
+function chatTheme(agent) {
+  if (!agent) return 'general'
+  if (agent.id === 'super-agent') return 'manus'
+  if (agent.id === 'car-advisor') return 'advisor'
+  if (isTravelAgent(agent)) return 'travel'
+  if (agent.category === 'productivity') return 'manus'
+  if (agent.category === 'advisor') return 'advisor'
+  return 'general'
+}
+
+function isTravelAgent(agent) {
+  const id = String(agent.id || '').toLowerCase()
+  return id.includes('travel') || id.includes('trip') || id.includes('tour') || agent.name?.includes('旅游')
+}
 </script>
 
 <template>
   <div class="agent-chat-layout">
+    <!-- 移动端遮罩层 -->
+    <div
+      class="sidebar-backdrop"
+      :class="{ visible: sidebarOpen }"
+      @click="sidebarOpen = false"
+    ></div>
+
     <!-- 侧边栏：会话列表 -->
     <aside class="sidebar" :class="{ closed: !sidebarOpen }">
       <div class="sidebar-header">
         <div class="agent-info" v-if="agent">
-          <span class="agent-icon">{{ agent.icon || '🤖' }}</span>
+          <AgentIcon :icon="agent.icon || 'robot'" :size="20" theme="outline" fill="#6b7280" />
           <span class="agent-name">{{ agent.name }}</span>
         </div>
-        <button class="btn-new" @click="handleNewChat">+ 新对话</button>
+        <button class="btn-new" @click="handleNewChatMobile">+ 新对话</button>
+        <!-- 移动端关闭按钮 -->
+        <button class="sidebar-close-btn" @click="sidebarOpen = false">✕</button>
       </div>
 
       <div class="conv-list">
@@ -251,7 +287,7 @@ function formatTime(ts) {
           :key="conv.id"
           class="conv-item"
           :class="{ active: conv.id === activeConvId }"
-          @click="handleSelectConv(conv)"
+          @click="handleSelectConvMobile(conv)"
         >
           <div class="conv-main" @dblclick.stop="startRename(conv)">
             <div v-if="renamingId === conv.id" class="conv-rename">
@@ -280,13 +316,23 @@ function formatTime(ts) {
       </div>
     </aside>
 
-    <!-- 侧边栏切换按钮 -->
-    <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen">
+    <!-- 桌面端侧边栏切换按钮 -->
+    <button class="sidebar-toggle" @click="sidebarOpen = !sidebarOpen" :title="sidebarOpen ? '收起侧栏' : '展开侧栏'">
       {{ sidebarOpen ? '◀' : '▶' }}
     </button>
 
     <!-- 主聊天区 -->
     <main class="chat-main">
+      <!-- 移动端顶部栏：返回 + 汉堡菜单 + Agent 名称 + 新建 -->
+      <div class="mobile-chat-header">
+        <router-link to="/" class="mobile-back-btn" title="返回首页">←</router-link>
+        <button class="hamburger-btn" @click="sidebarOpen = true">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="mobile-agent-title">{{ agent?.name || 'AI 对话' }}</span>
+        <button class="mobile-new-btn" @click="handleNewChatMobile" title="新对话">+</button>
+      </div>
+
       <ChatRoom
         v-if="activeConvId"
         v-model:messages="messages"
@@ -294,7 +340,7 @@ function formatTime(ts) {
         :subtitle="agent?.description || ''"
         :chat-id="activeConvId"
         :loading="loading"
-        :theme="agent?.category === 'productivity' ? 'manus' : 'car'"
+        :theme="chatTheme(agent)"
         @send="send"
         @retry="retry"
         @abort="abort"
@@ -326,17 +372,40 @@ function formatTime(ts) {
   display: flex;
   height: 100vh;
   overflow: hidden;
+  position: relative;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(167,139,250,0.12), transparent 34%),
+    radial-gradient(circle at 100% 14%, rgba(125,211,252,0.12), transparent 30%),
+    linear-gradient(180deg, #fbfbff, #f5f8fc);
+}
+
+/* ====== 移动端遮罩层 ====== */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  z-index: 19;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.sidebar-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* ====== 侧边栏 ====== */
 .sidebar {
   width: 280px;
   min-width: 280px;
-  background: #f9fafb;
-  border-right: 1px solid #e5e7eb;
+  background: rgba(255,255,255,0.78);
+  border-right: 1px solid rgba(148,163,184,0.18);
+  backdrop-filter: blur(18px);
   display: flex;
   flex-direction: column;
-  transition: margin-left 0.3s ease, opacity 0.3s ease;
+  transition: margin-left 0.3s ease, width 0.3s ease, min-width 0.3s ease, opacity 0.3s ease;
   overflow: hidden;
 }
 
@@ -349,7 +418,8 @@ function formatTime(ts) {
 
 .sidebar-header {
   padding: 16px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid rgba(148,163,184,0.16);
+  position: relative;
 }
 
 .agent-info {
@@ -359,24 +429,50 @@ function formatTime(ts) {
   margin-bottom: 12px;
   font-weight: 600;
   font-size: 15px;
-  color: #111827;
+  color: var(--ai-text);
 }
 
-.agent-icon { font-size: 20px; }
+.agent-icon { display: flex; align-items: center; }
 
 .btn-new {
   width: 100%;
   padding: 8px;
-  border: 1px dashed #d1d5db;
-  border-radius: 8px;
-  background: #fff;
-  color: #374151;
+  border: 1px dashed rgba(139,92,246,0.26);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(238,242,255,0.78), rgba(240,249,255,0.70));
+  color: #4f46e5;
   font-size: 13px;
   cursor: pointer;
   transition: border-color 0.2s;
 }
 
-.btn-new:hover { border-color: #2563eb; color: #2563eb; }
+.btn-new:hover {
+  border-color: rgba(109,93,252,0.54);
+  color: #4f46e5;
+  box-shadow: 0 10px 24px rgba(79,70,229,0.10);
+}
+
+/* 移动端侧边栏关闭按钮（桌面端隐藏） */
+.sidebar-close-btn {
+  display: none;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.sidebar-close-btn:hover {
+  background: #e5e7eb;
+  color: #111827;
+}
 
 /* ====== 会话列表 ====== */
 .conv-list {
@@ -387,23 +483,31 @@ function formatTime(ts) {
 
 .conv-item {
   padding: 12px;
-  border-radius: 10px;
+  border-radius: 14px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  transition: background 0.15s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  border: 1px solid transparent;
 }
 
-.conv-item:hover { background: #f3f4f6; }
-.conv-item.active { background: #eff6ff; border: 1px solid #dbeafe; }
+.conv-item:hover {
+  background: rgba(255,255,255,0.72);
+  border-color: rgba(148,163,184,0.14);
+}
+.conv-item.active {
+  background: linear-gradient(135deg, rgba(238,242,255,0.92), rgba(240,249,255,0.82));
+  border: 1px solid rgba(139,92,246,0.18);
+  box-shadow: 0 10px 24px rgba(79,70,229,0.08);
+}
 
 .conv-main { flex: 1; min-width: 0; }
 
 .conv-title {
   font-size: 13px;
   font-weight: 500;
-  color: #111827;
+  color: var(--ai-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -460,7 +564,7 @@ function formatTime(ts) {
   font-size: 13px;
 }
 
-/* ====== 切换按钮 ====== */
+/* ====== 桌面端侧边栏切换按钮 ====== */
 .sidebar-toggle {
   position: absolute;
   left: 280px;
@@ -469,11 +573,11 @@ function formatTime(ts) {
   z-index: 10;
   width: 24px;
   height: 48px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid rgba(148,163,184,0.20);
   border-left: none;
   border-radius: 0 6px 6px 0;
-  background: #fff;
-  color: #6b7280;
+  background: rgba(255,255,255,0.84);
+  color: #4f46e5;
   font-size: 10px;
   cursor: pointer;
   display: flex;
@@ -483,6 +587,89 @@ function formatTime(ts) {
 }
 
 .sidebar.closed ~ .sidebar-toggle { left: 0; }
+
+/* ====== 移动端顶部栏（桌面端隐藏） ====== */
+.mobile-chat-header {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.84);
+  border-bottom: 1px solid rgba(148,163,184,0.16);
+  backdrop-filter: blur(14px);
+  flex-shrink: 0;
+}
+
+.mobile-back-btn {
+  font-size: 18px;
+  color: #374151;
+  text-decoration: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 6px;
+}
+
+.mobile-back-btn:hover {
+  background: #f3f4f6;
+}
+
+.hamburger-btn {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 32px;
+  height: 32px;
+  padding: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.hamburger-btn span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: #374151;
+  border-radius: 2px;
+}
+
+.mobile-agent-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ai-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-new-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px dashed rgba(139,92,246,0.26);
+  border-radius: 10px;
+  background: rgba(238,242,255,0.72);
+  color: #4f46e5;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.mobile-new-btn:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
 
 /* ====== 主区域 ====== */
 .chat-main {
@@ -505,17 +692,71 @@ function formatTime(ts) {
 
 .placeholder-icon { font-size: 48px; }
 
+/* ========== 平板 / 手机端 ========== */
 @media (max-width: 768px) {
+  .agent-chat-layout {
+    flex-direction: column;
+  }
+
+  /* 遮罩层显示 */
+  .sidebar-backdrop {
+    display: block;
+  }
+
+  /* 侧边栏：固定覆盖层 */
   .sidebar {
     position: fixed;
     left: 0;
     top: 0;
     bottom: 0;
     z-index: 20;
-    box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
+    transform: translateX(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-  .sidebar.closed { margin-left: -280px; min-width: 280px; width: 280px; opacity: 1; pointer-events: auto; }
-  .sidebar-toggle { display: none; }
-  .chat-main { margin-left: 0; }
+
+  .sidebar.closed {
+    transform: translateX(-100%);
+    width: 280px;
+    min-width: 280px;
+    opacity: 1;
+    pointer-events: none;
+    box-shadow: none;
+  }
+
+  /* 显示关闭按钮 */
+  .sidebar-close-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 隐藏桌面端切换按钮 */
+  .sidebar-toggle {
+    display: none;
+  }
+
+  /* 聊天区域占满宽度 */
+  .chat-main {
+    margin-left: 0;
+  }
+
+  /* 显示移动端顶部栏 */
+  .mobile-chat-header {
+    display: flex;
+  }
+
+  /* 隐藏 ChatRoom 内部的 header（移动端顶部栏已替代） */
+  .chat-main :deep(.chat-header) {
+    display: none;
+  }
+
+  /* ChatRoom 在移动端全屏适应 */
+  .chat-main :deep(.chat-room) {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
 }
 </style>

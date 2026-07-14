@@ -37,6 +37,7 @@ public enum ErrorCode {
     // ========== 认证 50xxx ==========
     UNAUTHORIZED(50001, "未登录或 Token 无效"),
     LOGIN_FAILED(50002, "用户名或密码错误"),
+    FORBIDDEN(50003, "权限不足，禁止访问"),
     ;
 
     private final int code;

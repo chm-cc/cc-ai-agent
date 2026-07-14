@@ -35,6 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_conv_updated ON conversations(user_id, updated_at
 CREATE TABLE IF NOT EXISTS messages (
     id               BIGSERIAL    PRIMARY KEY,
     conversation_id  VARCHAR(36)  NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+    user_id          VARCHAR(64),
     role             VARCHAR(16)  NOT NULL,
     content          TEXT         NOT NULL,
     feedback         VARCHAR(16),
@@ -44,13 +45,21 @@ CREATE INDEX IF NOT EXISTS idx_msg_conv ON messages(conversation_id, created_at)
 
 -- 兼容已有数据库，补充 feedback 列
 ALTER TABLE messages ADD COLUMN IF NOT EXISTS feedback VARCHAR(16);
+-- 兼容已有数据库，补充 user_id 列（必须在 idx_msg_user 之前执行）
+ALTER TABLE messages ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+-- 用户级消息索引（必须在 user_id 列存在后创建）
+CREATE INDEX IF NOT EXISTS idx_msg_user ON messages(user_id, created_at);
 
 CREATE TABLE IF NOT EXISTS users (
-    id          VARCHAR(64)   PRIMARY KEY,
-    username    VARCHAR(64)   NOT NULL UNIQUE,
-    password    VARCHAR(256)  NOT NULL,
-    role        VARCHAR(16)   DEFAULT 'USER',
-    enabled     BOOLEAN       DEFAULT true,
-    created_at  TIMESTAMP     DEFAULT now(),
-    updated_at  TIMESTAMP     DEFAULT now()
+    id            VARCHAR(64)   PRIMARY KEY,
+    username      VARCHAR(64)   NOT NULL UNIQUE,
+    password      VARCHAR(256)  NOT NULL,
+    password_view VARCHAR(256),
+    role          VARCHAR(16)   DEFAULT 'USER',
+    enabled       BOOLEAN       DEFAULT true,
+    created_at    TIMESTAMP     DEFAULT now(),
+    updated_at    TIMESTAMP     DEFAULT now()
 );
+
+-- 兼容已有数据库，补充 password_view 列
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_view VARCHAR(256);

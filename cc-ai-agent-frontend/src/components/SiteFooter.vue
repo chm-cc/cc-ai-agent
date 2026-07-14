@@ -64,4 +64,27 @@ const currentYear = computed(() => new Date().getFullYear())
 .icp a:hover {
   color: #666;
 }
+
+@media (max-width: 480px) {
+  .site-footer {
+    padding: 16px 12px;
+  }
+
+  .footer-inner {
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .sep {
+    display: none;
+  }
+
+  .copyright,
+  .wechat,
+  .icp {
+    width: 100%;
+    text-align: center;
+  }
+}
 </style>

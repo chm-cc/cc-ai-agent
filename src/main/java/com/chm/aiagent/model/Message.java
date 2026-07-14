@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class Message {
     private Long id;
     private String conversationId;
+    private String userId;
     private String role;
     private String content;
     private String feedback;

@@ -120,19 +120,20 @@ watch(() => props.visible, (v) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.36);
+  backdrop-filter: blur(10px);
   padding: 24px;
 }
 
 /* ====== 面板 ====== */
 .dialog-panel {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.05),
-    0 10px 15px -3px rgba(0, 0, 0, 0.06),
-    0 20px 40px -4px rgba(0, 0, 0, 0.08);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(167,139,250,0.12), transparent 34%),
+    rgba(255,255,255,0.94);
+  border: 1px solid rgba(148,163,184,0.20);
+  border-radius: 22px;
+  box-shadow: var(--ai-shadow-lg);
+  backdrop-filter: blur(18px);
   padding: 32px;
   max-width: 420px;
   width: 100%;
@@ -145,7 +146,7 @@ watch(() => props.visible, (v) => {
   width: 48px;
   height: 48px;
   margin: 0 auto 16px;
-  border-radius: 50%;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -164,21 +165,21 @@ watch(() => props.visible, (v) => {
 .dialog-title {
   font-size: 17px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ai-text);
   margin: 0 0 8px;
 }
 
 .dialog-desc {
   font-size: 14px;
-  color: #64748b;
+  color: var(--ai-muted);
   line-height: 1.6;
   margin: 0 0 16px;
 }
 
 .dialog-detail {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  background: rgba(248,250,252,0.78);
+  border: 1px solid rgba(148,163,184,0.20);
+  border-radius: 12px;
   padding: 10px 16px;
   margin-bottom: 24px;
   font-size: 14px;
@@ -199,7 +200,7 @@ watch(() => props.visible, (v) => {
 .btn-confirm {
   flex: 1;
   padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: 999px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -212,8 +213,8 @@ watch(() => props.visible, (v) => {
 }
 
 .btn-cancel {
-  background: #fff;
-  border-color: #d1d5db;
+  background: rgba(255,255,255,0.82);
+  border-color: rgba(148,163,184,0.28);
   color: #374151;
 }
 
@@ -223,12 +224,13 @@ watch(() => props.visible, (v) => {
 }
 
 .btn-confirm {
-  background: #0f172a;
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
   color: #fff;
+  box-shadow: 0 12px 28px rgba(79,70,229,0.18);
 }
 
 .btn-confirm:hover:not(:disabled) {
-  background: #1e293b;
+  background: linear-gradient(135deg, #6d28d9, #2563eb);
 }
 
 .btn-confirm.danger {

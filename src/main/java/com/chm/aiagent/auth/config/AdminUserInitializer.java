@@ -25,21 +25,36 @@ public class AdminUserInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (userRepository.existsByUsername("admin")) {
+        // 创建默认管理员 admin
+        if (!userRepository.existsByUsername("admin")) {
+            User admin = new User();
+            admin.setId(UUID.randomUUID().toString());
+            admin.setUsername("admin");
+            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setRole("ADMIN");
+            admin.setEnabled(true);
+            admin.setCreatedAt(LocalDateTime.now());
+            admin.setUpdatedAt(LocalDateTime.now());
+            userRepository.insert(admin);
+            log.info("默认管理员用户已创建: admin / admin123（请登录后尽快修改密码）");
+        } else {
             log.info("管理员用户已存在，跳过初始化");
-            return;
         }
 
-        User admin = new User();
-        admin.setId(UUID.randomUUID().toString());
-        admin.setUsername("admin");
-        admin.setPassword(passwordEncoder.encode("admin123"));
-        admin.setRole("ADMIN");
-        admin.setEnabled(true);
-        admin.setCreatedAt(LocalDateTime.now());
-        admin.setUpdatedAt(LocalDateTime.now());
-
-        userRepository.insert(admin);
-        log.info("默认管理员用户已创建: admin / admin123（请登录后尽快修改密码）");
+        // 创建超级管理员 super
+        if (!userRepository.existsByUsername("super")) {
+            User superUser = new User();
+            superUser.setId(UUID.randomUUID().toString());
+            superUser.setUsername("super");
+            superUser.setPassword(passwordEncoder.encode("147258"));
+            superUser.setRole("SUPER_ADMIN");
+            superUser.setEnabled(true);
+            superUser.setCreatedAt(LocalDateTime.now());
+            superUser.setUpdatedAt(LocalDateTime.now());
+            userRepository.insert(superUser);
+            log.info("超级管理员用户已创建: super / 147258");
+        } else {
+            log.info("超级管理员用户已存在，跳过初始化");
+        }
     }
 }

@@ -2,6 +2,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { fetchAllAgents, createAgent, updateAgent, deleteAgent } from '../api/agent'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
+import AgentIcon from '../components/AgentIcon.vue'
 
 const agents = ref([])
 const loading = ref(true)
@@ -17,7 +18,7 @@ const defaultForm = () => ({
   id: '',
   name: '',
   description: '',
-  icon: '🤖',
+  icon: 'robot',
   category: 'general',
   tags: [],
   systemPrompt: '',
@@ -48,27 +49,27 @@ const availableTools = [
   'Weather',
 ]
 
-// 图标选项
+// 图标选项（使用 IconPark 图标库）
 const iconCategories = [
   {
     name: 'AI & 智能',
-    icons: ['🤖', '🧠', '💬', '🗣️', '👁️', '🦾', '🦿', '🎯', '💡', '✨', '⚡', '🔮'],
+    icons: ['robot', 'brain', 'chip', 'cpu', 'voice', 'voice-message', 'like', 'tips', 'lightbulb', 'key'],
   },
   {
     name: '办公 & 效率',
-    icons: ['📊', '📈', '📋', '📝', '📎', '📌', '🗂️', '📅', '⏰', '📧', '📬', '✅'],
+    icons: ['document', 'calendar', 'mail', 'edit', 'search', 'chart-line', 'chart-pie', 'analysis', 'file-text', 'folder'],
   },
   {
     name: '技术 & 工具',
-    icons: ['💻', '🖥️', '⌨️', '🔧', '⚙️', '🛠️', '📡', '🔌', '🧮', '🔐', '🛡️', '🗜️'],
+    icons: ['code', 'terminal', 'tool', 'hammer', 'api', 'data', 'config', 'undo', 'protection', 'setting'],
   },
   {
     name: '行业 & 场景',
-    icons: ['🏥', '🎓', '💰', '🛒', '✈️', '🚗', '🏠', '🎮', '🎵', '📸', '🌐', '🔬'],
+    icons: ['shopping-cart', 'car', 'airplane', 'bank', 'hospital', 'school', 'music-list', 'camera', 'globe', 'home'],
   },
   {
-    name: '经典表情',
-    icons: ['😊', '🌟', '🔥', '💪', '🏆', '🎉', '💎', '🎁', '☕', '🍀', '🌈', '❤️'],
+    name: '经典',
+    icons: ['star', 'fire', 'trophy', 'diamond', 'gift', 'coffee', 'like-outlined', 'smiling-face', 'heart', 'success'],
   },
 ]
 
@@ -106,7 +107,7 @@ function openEdit(agent) {
   form.id = agent.id
   form.name = agent.name || ''
   form.description = agent.description || ''
-  form.icon = agent.icon || '🤖'
+  form.icon = agent.icon || 'robot'
   form.category = agent.category || 'general'
   form.tags = agent.tags ? [...agent.tags] : []
   form.systemPrompt = agent.systemPrompt || ''
@@ -251,7 +252,7 @@ onMounted(load)
         <tbody>
           <tr v-for="a in agents" :key="a.id">
             <td class="name-cell">
-              <span class="agent-icon">{{ a.icon || '🤖' }}</span>
+              <AgentIcon :icon="a.icon || 'robot'" :size="20" theme="outline" />
               {{ a.name }}
             </td>
             <td class="mono">{{ a.id }}</td>
@@ -321,12 +322,11 @@ onMounted(load)
             <label class="form-label">图标</label>
             <div class="icon-picker">
               <div class="icon-preview">
-                <span class="icon-preview-emoji">{{ form.icon || '🤖' }}</span>
+                <AgentIcon :icon="form.icon" :size="36" theme="outline" fill="#2563eb" />
                 <input
                   v-model="form.icon"
                   class="form-input icon-input"
-                  placeholder="或直接输入 emoji"
-                  maxlength="2"
+                  placeholder="输入图标名或 emoji（如 robot）"
                 />
               </div>
               <div v-for="cat in iconCategories" :key="cat.name" class="icon-cat">
@@ -339,7 +339,9 @@ onMounted(load)
                     :class="{ selected: form.icon === icon }"
                     :title="icon"
                     @click="selectIcon(icon)"
-                  >{{ icon }}</button>
+                  >
+                    <AgentIcon :icon="icon" :size="20" theme="outline" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -493,8 +495,6 @@ onMounted(load)
   align-items: center;
   gap: 8px;
 }
-
-.agent-icon { font-size: 18px; }
 
 .mono {
   font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
@@ -707,7 +707,7 @@ onMounted(load)
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 12px;
-  max-height: 320px;
+  max-height: 340px;
   overflow-y: auto;
 }
 
@@ -716,11 +716,8 @@ onMounted(load)
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
-}
-
-.icon-preview-emoji {
-  font-size: 32px;
-  line-height: 1;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
 }
 
 .icon-input {
@@ -728,7 +725,7 @@ onMounted(load)
 }
 
 .icon-cat {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .icon-cat:last-child { margin-bottom: 0; }
@@ -737,21 +734,18 @@ onMounted(load)
   font-size: 11px;
   font-weight: 600;
   color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
   margin: 0 0 6px 0;
 }
 
 .icon-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
 }
 
 .icon-btn {
-  width: 36px;
-  height: 36px;
-  font-size: 18px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -761,26 +755,241 @@ onMounted(load)
   cursor: pointer;
   transition: all 0.15s;
   padding: 0;
-  line-height: 1;
+  color: #4b5563;
 }
 
 .icon-btn:hover {
   background: #eff6ff;
   border-color: #bfdbfe;
-  transform: scale(1.15);
+  color: #2563eb;
+  transform: scale(1.1);
 }
 
 .icon-btn.selected {
   background: #dbeafe;
   border-color: #2563eb;
+  color: #2563eb;
   box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
 }
 
+/* Premium AI platform skin */
+.manage-title {
+  color: var(--ai-text);
+  font-weight: 800;
+  letter-spacing: -0.35px;
+}
+
+.manage-loading, .manage-error, .empty { color: var(--ai-muted); }
+
+.table-section {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(167,139,250,0.12), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,0.92), rgba(248,250,252,0.78));
+  border: 1px solid rgba(148,163,184,0.20);
+  border-radius: 22px;
+  box-shadow: var(--ai-shadow-sm);
+  backdrop-filter: blur(14px);
+}
+
+.agent-table th {
+  color: var(--ai-muted);
+  background: linear-gradient(135deg, rgba(248,250,252,0.96), rgba(238,242,255,0.62));
+  border-bottom: 1px solid rgba(148,163,184,0.18);
+}
+
+.agent-table td {
+  color: #344054;
+  border-bottom: 1px solid rgba(148,163,184,0.12);
+}
+
+.name-cell { color: var(--ai-text); font-weight: 650; }
+.mono { color: #667085; }
+
+.status-badge {
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-weight: 650;
+}
+
+.status-badge.active {
+  color: #047857;
+  background: linear-gradient(135deg, rgba(209,250,229,0.86), rgba(236,253,245,0.92));
+  border: 1px solid rgba(16,185,129,0.18);
+}
+
+.status-badge.inactive {
+  background: rgba(241,245,249,0.9);
+  color: #94a3b8;
+  border: 1px solid rgba(148,163,184,0.18);
+}
+
+.btn-primary, .btn-secondary, .btn-sm, .btn-danger {
+  border-radius: 999px;
+  transition: transform 0.15s, box-shadow 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
+  box-shadow: 0 12px 28px rgba(79,70,229,0.18);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #6d28d9, #2563eb);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 34px rgba(79,70,229,0.24);
+}
+
+.btn-secondary {
+  background: rgba(255,255,255,0.82);
+  border-color: rgba(148,163,184,0.28);
+  color: #344054;
+}
+
+.btn-secondary:hover { background: #fff; box-shadow: var(--ai-shadow-sm); }
+
+.btn-sm {
+  color: #4f46e5;
+  background: linear-gradient(135deg, rgba(238,242,255,0.92), rgba(240,249,255,0.80));
+  border-color: rgba(139,92,246,0.15);
+}
+
+.btn-sm:hover {
+  background: rgba(238,242,255,0.95);
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  color: #dc2626;
+  background: linear-gradient(135deg, rgba(254,242,242,0.95), rgba(255,247,237,0.90));
+  border-color: rgba(248,113,113,0.24);
+}
+
+.modal-overlay {
+  background: rgba(15,23,42,0.34);
+  backdrop-filter: blur(10px);
+}
+
+.modal {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(167,139,250,0.12), transparent 34%),
+    rgba(255,255,255,0.94);
+  border: 1px solid rgba(148,163,184,0.20);
+  border-radius: 24px;
+  box-shadow: var(--ai-shadow-lg);
+  backdrop-filter: blur(18px);
+}
+
+.modal-header h2 {
+  color: var(--ai-text);
+  font-weight: 800;
+}
+
+.form-label {
+  color: #344054;
+  font-weight: 650;
+}
+
+.form-input, .form-textarea, select.form-input {
+  border-color: rgba(148,163,184,0.28);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.86);
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.form-input:focus, .form-textarea:focus {
+  border-color: rgba(109,93,252,0.55);
+  box-shadow: 0 0 0 4px rgba(109,93,252,0.12);
+  background: #fff;
+}
+
+.form-hint {
+  color: var(--ai-muted);
+  background: rgba(238,242,255,0.55);
+  border: 1px solid rgba(139,92,246,0.10);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.chip {
+  background: rgba(238,242,255,0.86);
+  color: #4f46e5;
+  border-color: rgba(139,92,246,0.16);
+  border-radius: 999px;
+}
+
+.form-fieldset,
+.icon-picker {
+  border-color: rgba(148,163,184,0.20);
+  background: rgba(248,250,252,0.56);
+  border-radius: 16px;
+}
+
+.tool-check {
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(148,163,184,0.16);
+  border-radius: 12px;
+  padding: 9px 10px;
+}
+
+.icon-btn {
+  border-radius: 12px;
+  background: rgba(255,255,255,0.76);
+  border-color: rgba(148,163,184,0.14);
+}
+
+.icon-btn:hover {
+  background: rgba(238,242,255,0.92);
+  border-color: rgba(139,92,246,0.24);
+  color: #4f46e5;
+}
+
+.icon-btn.selected {
+  background: linear-gradient(135deg, rgba(238,242,255,0.98), rgba(240,249,255,0.88));
+  border-color: rgba(109,93,252,0.70);
+  color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(109,93,252,0.12);
+}
+
+.table-section {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 @media (max-width: 768px) {
-  .manage { padding: 32px 16px 24px; }
+  .manage { padding: 24px 14px 32px; }
   .manage-title { font-size: 22px; }
+  .header-row { flex-direction: column; align-items: flex-start; }
   .form-row-2col { flex-direction: column; }
   .modal { border-radius: 16px; }
+  .modal-header { padding: 18px 20px 0; }
+  .modal-body { padding: 16px 20px; gap: 12px; }
+  .modal-footer { padding: 14px 20px 20px; }
   .actions { flex-direction: column; }
+  .tool-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .agent-table th, .agent-table td { padding: 10px 12px; font-size: 13px; }
+}
+
+@media (max-width: 480px) {
+  .manage { padding: 14px 10px 24px; }
+  .manage-title { font-size: 19px; }
+  .table-section { border-radius: 12px; }
+  .modal-overlay { padding: 0; align-items: flex-end; }
+  .modal {
+    max-width: 100%;
+    border-radius: 16px 16px 0 0;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-header { padding: 16px 16px 0; }
+  .modal-body { padding: 14px 16px; gap: 10px; }
+  .modal-footer { padding: 12px 16px 16px; flex-direction: column; }
+  .modal-footer .btn-primary,
+  .modal-footer .btn-secondary { width: 100%; text-align: center; }
+  .agent-table th, .agent-table td { padding: 8px 10px; font-size: 12px; }
+  .agent-table th { font-size: 10px; }
+  .tool-grid { grid-template-columns: repeat(2, 1fr); }
+  .icon-picker { max-height: 240px; }
+  .icon-btn { width: 34px; height: 34px; }
+  .tag-input-row { flex-direction: column; }
 }
 </style>

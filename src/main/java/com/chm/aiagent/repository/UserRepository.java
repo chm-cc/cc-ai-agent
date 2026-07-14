@@ -22,6 +22,7 @@ public class UserRepository {
         u.setId(rs.getString("id"));
         u.setUsername(rs.getString("username"));
         u.setPassword(rs.getString("password"));
+        u.setPasswordView(rs.getString("password_view"));
         u.setRole(rs.getString("role"));
         u.setEnabled(rs.getBoolean("enabled"));
         u.setCreatedAt(rs.getObject("created_at", LocalDateTime.class));
@@ -35,10 +36,28 @@ public class UserRepository {
         return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
     }
 
+    public Optional<User> findById(String id) {
+        List<User> list = jdbc.query(
+                "SELECT * FROM users WHERE id = ?", rowMapper, id);
+        return list.isEmpty() ? Optional.empty() : Optional.of(list.get(0));
+    }
+
+    public List<User> findAll(int offset, int limit) {
+        return jdbc.query(
+                "SELECT * FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?",
+                rowMapper, limit, offset);
+    }
+
+    public int count() {
+        Integer count = jdbc.queryForObject(
+                "SELECT count(*) FROM users", Integer.class);
+        return count != null ? count : 0;
+    }
+
     public void insert(User user) {
         jdbc.update(
-                "INSERT INTO users (id, username, password, role, enabled, created_at, updated_at) VALUES (?,?,?,?,?,?,?)",
-                user.getId(), user.getUsername(), user.getPassword(), user.getRole(),
+                "INSERT INTO users (id, username, password, password_view, role, enabled, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?)",
+                user.getId(), user.getUsername(), user.getPassword(), user.getPasswordView(), user.getRole(),
                 user.isEnabled(),
                 user.getCreatedAt() != null ? Timestamp.valueOf(user.getCreatedAt()) : Timestamp.valueOf(LocalDateTime.now()),
                 user.getUpdatedAt() != null ? Timestamp.valueOf(user.getUpdatedAt()) : Timestamp.valueOf(LocalDateTime.now()));
@@ -48,5 +67,11 @@ public class UserRepository {
         Integer count = jdbc.queryForObject(
                 "SELECT count(*) FROM users WHERE username = ?", Integer.class, username);
         return count != null && count > 0;
+    }
+
+    public void updatePassword(String id, String encodedPassword, String encryptedView) {
+        jdbc.update(
+                "UPDATE users SET password = ?, password_view = ?, updated_at = now() WHERE id = ?",
+                encodedPassword, encryptedView, id);
     }
 }

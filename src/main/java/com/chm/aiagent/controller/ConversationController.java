@@ -3,6 +3,8 @@ package com.chm.aiagent.controller;
 import com.chm.aiagent.app.CarApp;
 import com.chm.aiagent.common.Result;
 import com.chm.aiagent.dto.*;
+import com.chm.aiagent.exception.BusinessException;
+import com.chm.aiagent.exception.ErrorCode;
 import com.chm.aiagent.model.Conversation;
 import com.chm.aiagent.service.*;
 import jakarta.validation.Valid;
@@ -28,7 +30,18 @@ public class ConversationController {
 
     private String currentUserId() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        return auth != null && auth.isAuthenticated() ? auth.getName() : "admin";
+        if (auth == null || !auth.isAuthenticated()
+                || "anonymousUser".equals(auth.getName())) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED);
+        }
+        return auth.getName();
+    }
+
+    /** 校验会话归属，防止跨用户访问 */
+    private void assertConversationOwner(Conversation conv, String userId) {
+        if (conv != null && conv.getUserId() != null && !conv.getUserId().equals(userId)) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "无权访问此会话");
+        }
     }
 
     @PostMapping
@@ -49,19 +62,26 @@ public class ConversationController {
 
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable String id) {
+        String userId = currentUserId();
+        Conversation conv = conversationService.getEntity(id);
+        assertConversationOwner(conv, userId);
         conversationService.delete(id);
         return Result.ok();
     }
 
     @PutMapping("/{id}")
     public Result<Void> rename(@PathVariable String id, @RequestBody RenameRequest req) {
+        String userId = currentUserId();
+        Conversation conv = conversationService.getEntity(id);
+        assertConversationOwner(conv, userId);
         conversationService.rename(id, req.getTitle());
         return Result.ok();
     }
 
     @PostMapping("/{id}/messages")
     public Result<Void> saveMessage(@PathVariable String id, @RequestBody SaveMessageRequest req) {
-        messageService.save(id, req.getRole(), req.getContent());
+        String userId = currentUserId();
+        messageService.save(id, userId, req.getRole(), req.getContent());
         return Result.ok();
     }
 
@@ -70,6 +90,9 @@ public class ConversationController {
             @PathVariable String id,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "50") int size) {
+        String userId = currentUserId();
+        Conversation conv = conversationService.getEntity(id);
+        assertConversationOwner(conv, userId);
         List<MessageVO> list = messageService.list(id, page, size);
         int total = messageService.count(id);
         return Result.ok(Map.of("list", list, "total", total, "page", page, "size", size));
@@ -77,12 +100,18 @@ public class ConversationController {
 
     @PutMapping("/{id}/messages/{msgId}/feedback")
     public Result<Void> feedback(@PathVariable String id, @PathVariable Long msgId, @RequestBody FeedbackRequest req) {
+        String userId = currentUserId();
+        Conversation conv = conversationService.getEntity(id);
+        assertConversationOwner(conv, userId);
         messageService.updateFeedback(msgId, req.getFeedback());
         return Result.ok();
     }
 
     @PostMapping("/{id}/generate-title")
     public Result<String> generateTitle(@PathVariable String id) {
+        String userId = currentUserId();
+        Conversation conv = conversationService.getEntity(id);
+        assertConversationOwner(conv, userId);
         List<MessageVO> messages = messageService.list(id, 1, 2);
         if (messages.isEmpty()) {
             return Result.ok(null);
@@ -104,15 +133,17 @@ public class ConversationController {
 
     @PostMapping("/{id}/chat/stream")
     public SseEmitter chatStream(@PathVariable String id, @Valid @RequestBody ChatRequest req) {
+        String userId = currentUserId();
         Conversation conv = conversationService.getEntity(id);
         if (conv == null) {
             SseEmitter bad = new SseEmitter();
             bad.completeWithError(new IllegalArgumentException("会话不存在: " + id));
             return bad;
         }
+        assertConversationOwner(conv, userId);
 
-        // 保存用户消息
-        messageService.save(id, "USER", req.getMessage());
+        // 保存用户消息（带 userId）
+        messageService.save(id, userId, "USER", req.getMessage());
         // 更新会话摘要
         String preview = req.getMessage().length() > 100
                 ? req.getMessage().substring(0, 100) + "..." : req.getMessage();

@@ -19,6 +19,7 @@ public class MessageRepository {
         Message m = new Message();
         m.setId(rs.getLong("id"));
         m.setConversationId(rs.getString("conversation_id"));
+        m.setUserId(rs.getString("user_id"));
         m.setRole(rs.getString("role"));
         m.setContent(rs.getString("content"));
         m.setFeedback(rs.getString("feedback"));
@@ -28,8 +29,8 @@ public class MessageRepository {
 
     public void insert(Message m) {
         jdbc.update(
-            "INSERT INTO messages (conversation_id, role, content) VALUES (?,?,?)",
-            m.getConversationId(), m.getRole(), m.getContent());
+            "INSERT INTO messages (conversation_id, user_id, role, content) VALUES (?,?,?,?)",
+            m.getConversationId(), m.getUserId(), m.getRole(), m.getContent());
     }
 
     public List<Message> findByConversation(String conversationId, int offset, int limit) {

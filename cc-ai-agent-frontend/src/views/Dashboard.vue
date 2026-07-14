@@ -186,8 +186,9 @@ onMounted(load)
 
 .dash-title {
   font-size: 28px;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
+  color: var(--ai-text);
+  letter-spacing: -0.35px;
 }
 
 .dash-loading, .dash-error {
@@ -201,30 +202,34 @@ onMounted(load)
 /* ====== 时间按钮组 ====== */
 .day-tabs {
   display: flex;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  border: 1px solid rgba(148,163,184,0.22);
+  border-radius: 999px;
   overflow: hidden;
+  background: rgba(255,255,255,0.72);
+  box-shadow: var(--ai-shadow-sm);
+  backdrop-filter: blur(14px);
 }
 
 .day-tab {
   padding: 7px 16px;
   font-size: 13px;
   font-weight: 500;
-  color: #6b7280;
-  background: #fff;
+  color: var(--ai-muted);
+  background: transparent;
   border: none;
-  border-right: 1px solid #e5e7eb;
+  border-right: 1px solid rgba(148,163,184,0.16);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
 
 .day-tab:last-child { border-right: none; }
 
-.day-tab:hover { background: #f9fafb; }
+.day-tab:hover { background: rgba(238,242,255,0.66); }
 
 .day-tab.active {
-  background: #2563eb;
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
   color: #fff;
+  box-shadow: 0 10px 22px rgba(79,70,229,0.18);
 }
 
 /* ====== 总览卡片 ====== */
@@ -242,17 +247,22 @@ onMounted(load)
 
 .section-title {
   font-size: 18px;
-  font-weight: 600;
-  color: #111827;
+  font-weight: 750;
+  color: var(--ai-text);
   margin-bottom: 16px;
+  letter-spacing: -0.15px;
 }
 
 /* ====== 图表 ====== */
 .chart-wrap {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(125,211,252,0.12), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,0.92), rgba(248,250,252,0.78));
+  border: 1px solid rgba(148,163,184,0.20);
+  border-radius: 22px;
   padding: 24px 16px 16px;
+  box-shadow: var(--ai-shadow-sm);
+  backdrop-filter: blur(14px);
 }
 
 .chart-legend {
@@ -276,8 +286,8 @@ onMounted(load)
   display: inline-block;
 }
 
-.conv-dot { background: #2563eb; }
-.msg-dot { background: #7c3aed; }
+.conv-dot { background: linear-gradient(135deg, #38bdf8, #2563eb); }
+.msg-dot { background: linear-gradient(135deg, #a78bfa, #7c3aed); }
 
 .bar-chart {
   display: flex;
@@ -315,8 +325,8 @@ onMounted(load)
   min-height: 0;
 }
 
-.bar-conv { background: #2563eb; }
-.bar-msg { background: #7c3aed; }
+.bar-conv { background: linear-gradient(180deg, #60a5fa, #2563eb); }
+.bar-msg { background: linear-gradient(180deg, #c4b5fd, #7c3aed); }
 
 .bar-day {
   position: absolute;
@@ -335,10 +345,12 @@ onMounted(load)
 
 /* ====== Agent 表格 ====== */
 .agent-table-wrap {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
+  background: rgba(255,255,255,0.86);
+  border: 1px solid rgba(148,163,184,0.20);
+  border-radius: 22px;
   overflow: hidden;
+  box-shadow: var(--ai-shadow-sm);
+  backdrop-filter: blur(14px);
 }
 
 .agent-table {
@@ -350,12 +362,12 @@ onMounted(load)
   padding: 12px 16px;
   font-size: 12px;
   font-weight: 600;
-  color: #6b7280;
+  color: var(--ai-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   text-align: left;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, rgba(248,250,252,0.96), rgba(238,242,255,0.62));
+  border-bottom: 1px solid rgba(148,163,184,0.18);
 }
 
 .agent-table th.num { text-align: right; }
@@ -363,8 +375,8 @@ onMounted(load)
 .agent-table td {
   padding: 14px 16px;
   font-size: 14px;
-  color: #374151;
-  border-bottom: 1px solid #f3f4f6;
+  color: #344054;
+  border-bottom: 1px solid rgba(148,163,184,0.12);
 }
 
 .agent-table tr:last-child td { border-bottom: none; }
@@ -377,9 +389,31 @@ onMounted(load)
 
 .agent-name-cell { font-weight: 500; }
 
+.agent-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 @media (max-width: 768px) {
-  .dashboard { padding: 32px 16px 24px; }
+  .dashboard { padding: 24px 14px 32px; }
   .dash-title { font-size: 22px; }
-  .overview-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-title-row { flex-direction: column; align-items: flex-start; }
+  .overview-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .chart-wrap { padding: 16px 10px 12px; }
+  .bar-chart { height: 150px; }
+  .agent-table th, .agent-table td { padding: 10px 12px; font-size: 13px; }
+}
+
+@media (max-width: 480px) {
+  .dashboard { padding: 16px 10px 28px; }
+  .dash-title { font-size: 19px; }
+  .overview-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .section-title { font-size: 16px; }
+  .day-tab { padding: 6px 12px; font-size: 12px; }
+  .chart-wrap { padding: 12px 6px 8px; border-radius: 12px; }
+  .bar-chart { height: 120px; }
+  .bar-day { font-size: 9px; }
+  .agent-table th, .agent-table td { padding: 8px 10px; font-size: 12px; }
+  .agent-table th { font-size: 10px; }
 }
 </style>

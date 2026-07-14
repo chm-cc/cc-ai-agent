@@ -5,7 +5,7 @@ import Login from '../views/Login.vue'
 import { routeSeo } from '../config/site'
 import { updatePageSeo } from '../utils/seo'
 import { trackPageView } from '../utils/monitor'
-import { isLoggedIn } from '../utils/auth'
+import { isLoggedIn, isSuperAdmin } from '../utils/auth'
 
 const routes = [
   {
@@ -47,6 +47,12 @@ const routes = [
     meta: { seo: routeSeo.AgentManage, requiresAuth: true },
   },
   {
+    path: '/admin/users',
+    name: 'AdminUsers',
+    component: () => import('../views/AdminUsers.vue'),
+    meta: { seo: { title: '用户管理' }, requiresAuth: true, requiresSuperAdmin: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },
@@ -63,6 +69,9 @@ const router = createRouter({
 router.beforeEach((to) => {
   if (to.meta.requiresAuth && !isLoggedIn()) {
     return { name: 'Login', query: { redirect: to.fullPath } }
+  }
+  if (to.meta.requiresSuperAdmin && !isSuperAdmin()) {
+    return { name: 'Home' }
   }
   if (to.name === 'Login' && isLoggedIn()) {
     return { path: '/' }

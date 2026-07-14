@@ -14,9 +14,10 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
 
-    public void save(String conversationId, String role, String content) {
+    public void save(String conversationId, String userId, String role, String content) {
         Message m = new Message();
         m.setConversationId(conversationId);
+        m.setUserId(userId);
         m.setRole(role);
         m.setContent(content);
         messageRepository.insert(m);

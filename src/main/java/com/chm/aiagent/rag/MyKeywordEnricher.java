@@ -15,11 +15,11 @@ import java.util.List;
 public class MyKeywordEnricher {
 
     @Resource
-    private ChatModel ollamaChatModel;
+    private ChatModel chatModel;
 
     List<Document> enrichDocuments(List<Document> documents) {
         KeywordMetadataEnricher keywordMetadataEnricher =
-                new KeywordMetadataEnricher(this.ollamaChatModel, 5);
+                new KeywordMetadataEnricher(this.chatModel, 5);
         return keywordMetadataEnricher.apply(documents);
     }
 }
